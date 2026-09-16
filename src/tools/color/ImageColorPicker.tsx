@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
 import { CopyButton } from '../../components/common/CopyButton'
 import { FileDropzone } from '../../components/common/FileDropzone'
+import { CrossToolLinks } from '../../components/common/CrossToolLinks'
 import { readFileAsDataURL } from '../../lib/browser'
 import { trackEvent } from '../../lib/analytics'
 import {
@@ -11,7 +11,7 @@ import {
   PaletteColor,
   PixelSample,
 } from '../../lib/color/imagePalette'
-import { Pipette, Sparkles, CheckCircle, Palette, MousePointer, Copy, ArrowRight } from 'lucide-react'
+import { Pipette, Sparkles, CheckCircle, Palette, MousePointer, Copy } from 'lucide-react'
 import { copyToClipboard } from '../../lib/browser'
 
 // 内置两张精美的极简纯前端示例位图 (纯 SVG DataURL，无需外部网络请求)
@@ -363,37 +363,16 @@ export const ImageColorPicker: React.FC = () => {
                   </div>
 
                 {/* 跨工具一键流转协同面板 */}
-                <div className="rounded-2xl border border-primary-100 bg-gradient-to-br from-primary-50/50 to-indigo-50/30 p-4 space-y-2.5">
-                  <span className="text-xs font-bold text-primary-900 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-primary-600" />
-                    一键协同流转至其他工具
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    {palette.length >= 2 && (
-                      <Link
-                        to={`/tools/css/gradient-generator?from=${palette[0].hex.replace('#', '')}&to=${palette[1].hex.replace('#', '')}`}
-                        className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-primary-200/80 hover:border-primary-400 text-primary-900 font-medium shadow-2xs hover:shadow-xs transition-all group"
-                      >
-                        <span>以提取双色生成渐变</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-primary-600 group-hover:translate-x-0.5 transition-transform" />
-                      </Link>
-                    )}
-                    <Link
-                      to={`/tools/css/box-shadow-generator?color=${selectedColor.hex.replace('#', '')}`}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 hover:border-primary-400 text-slate-800 font-medium shadow-2xs hover:shadow-xs transition-all group"
-                    >
-                      <span>以选定色调配软阴影</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
-                    <Link
-                      to={`/tools/color/color-picker?hex=${selectedColor.hex.replace('#', '')}`}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 hover:border-primary-400 text-slate-800 font-medium shadow-2xs hover:shadow-xs transition-all group sm:col-span-2"
-                    >
-                      <span>以此色深入微调与 WCAG 文本对比度检测</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
-                  </div>
-                </div>
+                <CrossToolLinks
+                  variant="grid"
+                  links={[
+                    ...(palette.length >= 2
+                      ? [{ to: `/tools/css/gradient-generator?from=${palette[0].hex.replace('#', '')}&to=${palette[1].hex.replace('#', '')}`, label: '以提取双色生成渐变' }]
+                      : []),
+                    { to: `/tools/css/box-shadow-generator?color=${selectedColor.hex.replace('#', '')}`, label: '以选定色调配软阴影' },
+                    { to: `/tools/color/color-picker?hex=${selectedColor.hex.replace('#', '')}`, label: '以此色深入微调与 WCAG 文本对比度检测' },
+                  ]}
+                />
                 </div>
               </div>
             </div>

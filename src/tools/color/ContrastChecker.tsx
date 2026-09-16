@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
+import { CrossToolLinks } from '../../components/common/CrossToolLinks'
 import {
   evaluateWcagCompliance,
   suggestAccessibleColor,
@@ -14,7 +15,6 @@ import {
   Type,
   Layout,
   Wand2,
-  ArrowRight,
   ShieldCheck,
 } from 'lucide-react'
 
@@ -342,22 +342,13 @@ export const ContrastChecker: React.FC = () => {
           )}
 
           {/* 底部协同通道 */}
-          <div className="pt-2 flex flex-wrap gap-2 text-xs">
-            <Link
-              to={`/tools/color/color-picker?hex=${fgColor.replace('#', '')}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 font-medium transition-all group"
-            >
-              将前景色导入全能拾色器
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              to={`/tools/css/gradient-generator?from=${fgColor.replace('#', '')}&to=${bgColor.replace('#', '')}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-slate-700 font-medium transition-all group"
-            >
-              以当前双色创建渐变
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
+          <CrossToolLinks
+            className="pt-2"
+            links={[
+              { to: `/tools/color/color-picker?hex=${fgColor.replace('#', '')}`, label: '将前景色导入全能拾色器' },
+              { to: `/tools/css/gradient-generator?from=${fgColor.replace('#', '')}&to=${bgColor.replace('#', '')}`, label: '以当前双色创建渐变' },
+            ]}
+          />
         </div>
       </Card>
     </div>

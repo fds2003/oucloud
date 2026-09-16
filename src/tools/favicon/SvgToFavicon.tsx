@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react'
 import { Card } from '../../components/common/Card'
 import { Button } from '../../components/common/Button'
 import { CopyButton } from '../../components/common/CopyButton'
+import { SegmentedTabs } from '../../components/common/SegmentedTabs'
 import { FileDropzone } from '../../components/common/FileDropzone'
 import { cleanAndNormalizeSvg, DEMO_SVGS } from '../../lib/image/svgFavicon'
 import { convertImageToIcoBlob } from '../../lib/image/favicon'
@@ -139,30 +140,15 @@ export const SvgToFavicon: React.FC = () => {
           <div className="lg:col-span-6 space-y-5">
             {/* 上传 / 粘贴 切换 Tab */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex bg-slate-100 p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setInputTab('upload')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    inputTab === 'upload'
-                      ? 'bg-white text-primary-700 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <FileUp className="w-3.5 h-3.5" /> 上传 SVG 文件
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInputTab('paste')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    inputTab === 'paste'
-                      ? 'bg-white text-primary-700 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Code2 className="w-3.5 h-3.5" /> 粘贴 SVG 代码
-                </button>
-              </div>
+              <SegmentedTabs
+                size="sm"
+                value={inputTab}
+                onChange={setInputTab}
+                options={[
+                  { value: 'upload', label: <span className="flex items-center gap-1.5"><FileUp className="w-3.5 h-3.5" /> 上传 SVG 文件</span> },
+                  { value: 'paste', label: <span className="flex items-center gap-1.5"><Code2 className="w-3.5 h-3.5" /> 粘贴 SVG 代码</span> },
+                ]}
+              />
 
               <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5" /> 本地矢量解析

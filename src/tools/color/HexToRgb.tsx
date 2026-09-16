@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
 import { CopyButton } from '../../components/common/CopyButton'
+import { SegmentedTabs } from '../../components/common/SegmentedTabs'
+import { CrossToolLinks } from '../../components/common/CrossToolLinks'
 import {
   hexToRgb,
   rgbToHex,
@@ -10,7 +12,7 @@ import {
   parseHexParam,
   RGB,
 } from '../../lib/color/conversion'
-import { ArrowLeftRight, CheckCircle, AlertCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { ArrowLeftRight, CheckCircle, AlertCircle, Sparkles } from 'lucide-react'
 type Mode = 'hex-to-rgb' | 'rgb-to-hex'
 
 type HexResult =
@@ -77,30 +79,14 @@ export const HexToRgb: React.FC = () => {
     <div className="space-y-6">
       {/* 模式切换 */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div className="flex bg-slate-100 p-1 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setMode('hex-to-rgb')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-              mode === 'hex-to-rgb'
-                ? 'bg-white text-primary-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            HEX 转 RGB (十六进制 → 十进制)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('rgb-to-hex')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-              mode === 'rgb-to-hex'
-                ? 'bg-white text-primary-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            RGB 转 HEX (逆向转换)
-          </button>
-        </div>
+        <SegmentedTabs
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: 'hex-to-rgb', label: 'HEX 转 RGB (十六进制 → 十进制)' },
+            { value: 'rgb-to-hex', label: 'RGB 转 HEX (逆向转换)' },
+          ]}
+        />
 
         <button
           type="button"
@@ -301,29 +287,13 @@ export const HexToRgb: React.FC = () => {
             已解析有效颜色：<span className="font-mono font-bold text-slate-800">{activeColorHex}</span>
           </span>
 
-          <div className="flex flex-wrap gap-2">
-            <Link
-              to={`/tools/css/gradient-generator?from=${activeColorHex.replace('#', '')}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-primary-50 border border-slate-200 hover:border-primary-300 text-slate-700 hover:text-primary-800 font-medium transition-all group"
-            >
-              以此色调配渐变
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              to={`/tools/css/box-shadow-generator?color=${activeColorHex.replace('#', '')}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-primary-50 border border-slate-200 hover:border-primary-300 text-slate-700 hover:text-primary-800 font-medium transition-all group"
-            >
-              以此色生成阴影
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              to={`/tools/color/color-picker?hex=${activeColorHex.replace('#', '')}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-primary-50 border border-slate-200 hover:border-primary-300 text-slate-700 hover:text-primary-800 font-medium transition-all group"
-            >
-              深度拾色与吸色器
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
+          <CrossToolLinks
+            links={[
+              { to: `/tools/css/gradient-generator?from=${activeColorHex.replace('#', '')}`, label: '以此色调配渐变' },
+              { to: `/tools/css/box-shadow-generator?color=${activeColorHex.replace('#', '')}`, label: '以此色生成阴影' },
+              { to: `/tools/color/color-picker?hex=${activeColorHex.replace('#', '')}`, label: '深度拾色与吸色器' },
+            ]}
+          />
         </div>
       </Card>
     </div>

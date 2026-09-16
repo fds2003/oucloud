@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
 import { Button } from '../../components/common/Button'
 import { CopyButton } from '../../components/common/CopyButton'
+import { CrossToolLinks } from '../../components/common/CrossToolLinks'
 import {
   hexToRgb,
   rgbToHex,
@@ -17,7 +18,7 @@ import {
   RGB,
   HSL,
 } from '../../lib/color/conversion'
-import { Pipette, CheckCircle, Sparkles, ArrowRight, Camera } from 'lucide-react'
+import { Pipette, CheckCircle, Sparkles, Camera } from 'lucide-react'
 import { generateShareCardBlob, formatShareCardFilename } from '../../lib/image/shareCard'
 import { downloadBlob } from '../../lib/browser'
 const PRESET_COLORS = [
@@ -291,21 +292,13 @@ export const ColorPicker: React.FC = () => {
             </div>
 
             {/* 跨工具协同跳转 */}
-            <div className="pt-2 flex flex-col sm:flex-row gap-2">
-              <Link
-                to={`/tools/css/gradient-generator?from=${hex.replace('#', '')}`}
-                className="flex-1 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 border border-slate-200 hover:border-primary-300 text-xs font-semibold text-slate-700 hover:text-primary-900 transition-all group"
-              >
-                <span>以此色调配 CSS 渐变</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <Link
-                to={`/tools/css/box-shadow-generator?color=${hex.replace('#', '')}`}
-                className="flex-1 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 border border-slate-200 hover:border-primary-300 text-xs font-semibold text-slate-700 hover:text-primary-900 transition-all group"
-              >
-                <span>以此色生成软阴影</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+            <div className="pt-2">
+              <CrossToolLinks
+                links={[
+                  { to: `/tools/css/gradient-generator?from=${hex.replace('#', '')}`, label: '以此色调配 CSS 渐变' },
+                  { to: `/tools/css/box-shadow-generator?color=${hex.replace('#', '')}`, label: '以此色生成软阴影' },
+                ]}
+              />
             {/* 导出设计参数卡片 */}
             <div className="pt-2">
               <Button

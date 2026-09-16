@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Card } from '../../components/common/Card'
+import { SegmentedTabs } from '../../components/common/SegmentedTabs'
 import { CopyButton } from '../../components/common/CopyButton'
 import { Button } from '../../components/common/Button'
 import {
@@ -163,30 +164,14 @@ export const TimestampConverter: React.FC = () => {
 
       {/* 模式选择 Tab */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div className="flex bg-slate-100 p-1 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setMode('ts-to-date')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-              mode === 'ts-to-date'
-                ? 'bg-white text-primary-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            时间戳转日期时间 (Timestamp → Date)
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('date-to-ts')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-              mode === 'date-to-ts'
-                ? 'bg-white text-primary-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            日期时间转时间戳 (Date → Timestamp)
-          </button>
-        </div>
+        <SegmentedTabs
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: 'ts-to-date', label: '时间戳转日期时间 (Timestamp → Date)' },
+            { value: 'date-to-ts', label: '日期时间转时间戳 (Date → Timestamp)' },
+          ]}
+        />
       </div>
 
       <Card className="p-6">
@@ -217,30 +202,16 @@ export const TimestampConverter: React.FC = () => {
                   className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-lg font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-xs"
                 />
 
-                <div className="flex bg-slate-100 p-1 rounded-xl shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setTsUnit('s')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                      tsUnit === 's'
-                        ? 'bg-white text-primary-700 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    秒 (10位)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTsUnit('ms')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                      tsUnit === 'ms'
-                        ? 'bg-white text-primary-700 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    毫秒 (13位)
-                  </button>
-                </div>
+                <SegmentedTabs
+                  size="sm"
+                  className="shrink-0"
+                  value={tsUnit}
+                  onChange={setTsUnit}
+                  options={[
+                    { value: 's', label: '秒 (10位)' },
+                    { value: 'ms', label: '毫秒 (13位)' },
+                  ]}
+                />
               </div>
             </div>
 
