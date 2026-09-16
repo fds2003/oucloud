@@ -11,6 +11,13 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'on-first-retry',
+    /**
+     * 本地全并发 (CPU 核数个 worker) 时重负载偶发动作超时。
+     * 给每个自动等待动作放宽到 15s，导航类 45s，消除偶发抖动而不拖慢正常路径
+     * (正常动作都在百毫秒级，超时只是兜底)。
+     */
+    actionTimeout: 15_000,
+    navigationTimeout: 45_000,
   },
 
   projects: [
