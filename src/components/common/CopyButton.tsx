@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { Button, ButtonProps } from './Button';
+import { copyToClipboard } from '../../lib/browser';
+import { trackEvent } from '../../lib/analytics';
 
 export interface CopyButtonProps extends Omit<ButtonProps, 'children'> {
   textToCopy: string;
   label?: string;
   copiedLabel?: string;
+  toolId?: string;
 }
 
 export const CopyButton: React.FC<CopyButtonProps> = ({
@@ -14,30 +17,20 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   copiedLabel = '已复制',
   variant = 'outline',
   size = 'sm',
+  toolId,
   className = '',
   ...props
 }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(textToCopy);
-      } else {
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = textToCopy;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-      }
+    const success = await copyToClipboard(textToCopy);
+    if (success) {
       setCopied(true);
+      if (toolId) {
+        trackEvent('tool_copy', { toolId });
+      }
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy: ', err);
     }
   };
 
