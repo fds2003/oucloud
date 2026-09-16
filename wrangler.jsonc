@@ -1,0 +1,11 @@
+{
+  "name": "oucloud",
+  "compatibility_date": "2026-09-16",
+  // 纯静态 SSG 站点：无 Worker 脚本，仅托管 dist 静态资产。
+  // 不配置 main/构建集成，避免 wrangler 走 Vite 插件模式（要求 Vite >= 6，本项目为 5.4）
+  "assets": {
+    "directory": "./dist",
+    // 未命中路径返回 404.html（prerender 产物，已 noindex、不进 sitemap）
+    "not_found_handling": "404-page"
+  }
+}
