@@ -1,22 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { Card } from '../../components/common/Card';
-import { CopyButton } from '../../components/common/CopyButton';
-import { convertToRmbUppercase } from '../../lib/number/rmbUppercase';
-import { CheckCircle, AlertCircle, ArrowDown } from 'lucide-react';
+import React, { useState, useMemo } from 'react'
+import { Card } from '../../components/common/Card'
+import { CopyButton } from '../../components/common/CopyButton'
+import { convertToRmbUppercase } from '../../lib/number/rmbUppercase'
+import { CheckCircle, AlertCircle, ArrowDown } from 'lucide-react'
 
 const COMMON_PRESETS = [
   { label: '壹佰元整', val: '100' },
   { label: '壹仟元整', val: '1000' },
   { label: '伍万元整', val: '50000' },
   { label: '发票常用小数', val: '12345.67' },
-];
+]
 
 export const RmbUppercase: React.FC = () => {
-  const [inputVal, setInputVal] = useState('12345.67');
+  const [inputVal, setInputVal] = useState('12345.67')
 
   const conversion = useMemo(() => {
-    return convertToRmbUppercase(inputVal);
-  }, [inputVal]);
+    return convertToRmbUppercase(inputVal)
+  }, [inputVal])
 
   return (
     <div className="space-y-6">
@@ -95,14 +95,12 @@ export const RmbUppercase: React.FC = () => {
                   {conversion.result}
                 </span>
               ) : (
-                <span className="text-sm font-medium text-red-600">
-                  {conversion.error}
-                </span>
+                <span className="text-sm font-medium text-red-600">{conversion.error}</span>
               )}
             </div>
           </div>
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}

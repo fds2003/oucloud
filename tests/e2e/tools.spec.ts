@@ -111,6 +111,14 @@ test.describe('OUCloud 真实生产环境端到端 (E2E) 核心质量守门', ()
     // 切换为径向渐变
     await page.getByRole('button', { name: '径向 (Radial)' }).click();
     await expect(cssPre).toContainText('radial-gradient');
+
+    // 切换到“渐变边框”模式：应同时给出支持圆角与 border-image 两种写法
+    await page.getByRole('button', { name: '渐变边框' }).click();
+    const borderPreList = page.locator('pre');
+    await expect(borderPreList).toHaveCount(2);
+    await expect(borderPreList.first()).toContainText('padding-box');
+    await expect(borderPreList.first()).toContainText('border-box');
+    await expect(borderPreList.last()).toContainText('border-image');
   });
 
   test('6. 移动端与跨端无横向滚动条溢出', async ({ page }) => {

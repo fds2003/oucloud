@@ -1,6 +1,6 @@
 import { tools } from '../src/data/tools';
 import { categories } from '../src/data/categories';
-import { toolComponents } from '../src/tools/registry';
+import { toolComponentNames } from '../src/tools/registry';
 
 console.log('🔍 开始校验 Tool Registry 元数据...');
 
@@ -38,7 +38,7 @@ for (const tool of tools) {
   }
 
   // 5. Component 在注册表存在
-  if (!toolComponents[tool.component]) {
+  if (!toolComponentNames.includes(tool.component)) {
     console.error(`❌ 工具 [${tool.id}] 声明的组件 [${tool.component}] 未在 toolComponents 注册`);
     hasErrors = true;
   }

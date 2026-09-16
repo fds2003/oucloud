@@ -1,23 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Home } from 'lucide-react';
-import { SeoHead } from '../../components/seo/SeoHead';
-import { NOT_FOUND_META } from '../../data/seo';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Home } from 'lucide-react'
+import { SeoHead } from '../../components/seo/SeoHead'
+import { NOT_FOUND_META } from '../../data/seo'
 
 export const NotFoundPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       {/* 404 页不输出 canonical，避免把 /404 当作规范页面提交给搜索引擎 */}
-      <SeoHead
-        title={NOT_FOUND_META.title}
-        description={NOT_FOUND_META.description}
-      />
+      <SeoHead title={NOT_FOUND_META.title} description={NOT_FOUND_META.description} />
       <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 text-2xl font-black mb-6">
         404
       </div>
-      <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-        页面未找到
-      </h1>
+      <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">页面未找到</h1>
       <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
         您访问的工具页面可能已迁移或链接输入有误。您可以返回首页选择您需要的工具。
       </p>
@@ -31,5 +26,5 @@ export const NotFoundPage: React.FC = () => {
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}

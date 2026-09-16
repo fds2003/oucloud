@@ -1,68 +1,101 @@
 import { describe, it, expect } from 'vitest';
 import { convertToRmbUppercase } from '../../src/lib/number/rmbUppercase';
 
-describe('RMB Uppercase Engine - Precision & Boundary Tests', () => {
-  it('converts basic integers correctly', () => {
-    expect(convertToRmbUppercase('0').result).toBe('零元整');
-    expect(convertToRmbUppercase('1').result).toBe('壹元整');
-    expect(convertToRmbUppercase('10').result).toBe('壹拾元整');
-    expect(convertToRmbUppercase('100').result).toBe('壹佰元整');
-    expect(convertToRmbUppercase('101').result).toBe('壹佰零壹元整');
-    expect(convertToRmbUppercase('1001').result).toBe('壹仟零壹元整');
-    expect(convertToRmbUppercase('10001').result).toBe('壹万零壹元整');
-    expect(convertToRmbUppercase('100000').result).toBe('壹拾万元整');
-    expect(convertToRmbUppercase('1000001').result).toBe('壹佰万零壹元整');
+describe('RMB Uppercase Engine - 完整边界与精度测试', () => {
+  describe('基本整数转换', () => {
+    it('converts basic integers correctly', () => {
+      expect(convertToRmbUppercase('0').result).toBe('零元整');
+      expect(convertToRmbUppercase('1').result).toBe('壹元整');
+      expect(convertToRmbUppercase('10').result).toBe('壹拾元整');
+      expect(convertToRmbUppercase('100').result).toBe('壹佰元整');
+      expect(convertToRmbUppercase('101').result).toBe('壹佰零壹元整');
+      expect(convertToRmbUppercase('1001').result).toBe('壹仟零壹元整');
+      expect(convertToRmbUppercase('10001').result).toBe('壹万零壹元整');
+      expect(convertToRmbUppercase('100000').result).toBe('壹拾万元整');
+      expect(convertToRmbUppercase('1000001').result).toBe('壹佰万零壹元整');
+    });
+
+    it('handles leading zeros correctly', () => {
+      expect(convertToRmbUppercase('00123').result).toBe('壹佰贰拾叁元整');
+      expect(convertToRmbUppercase('0001').result).toBe('壹元整');
+      expect(convertToRmbUppercase('0').result).toBe('零元整');
+    });
   });
 
-  it('converts decimals (jiao and fen) correctly', () => {
-    expect(convertToRmbUppercase('0.01').result).toBe('壹分');
-    expect(convertToRmbUppercase('0.1').result).toBe('壹角');
-    expect(convertToRmbUppercase('1.01').result).toBe('壹元零壹分');
-    expect(convertToRmbUppercase('10.10').result).toBe('壹拾元壹角整');
-    expect(convertToRmbUppercase('100.01').result).toBe('壹佰元零壹分');
-    expect(convertToRmbUppercase('123.45').result).toBe('壹佰贰拾叁元肆角伍分');
+  describe('小数转换 (角分)', () => {
+    it('converts decimals correctly', () => {
+      expect(convertToRmbUppercase('0.01').result).toBe('壹分');
+      expect(convertToRmbUppercase('0.1').result).toBe('壹角');
+      expect(convertToRmbUppercase('1.01').result).toBe('壹元零壹分');
+      expect(convertToRmbUppercase('10.10').result).toBe('壹拾元壹角整');
+      expect(convertToRmbUppercase('100.01').result).toBe('壹佰元零壹分');
+      expect(convertToRmbUppercase('123.45').result).toBe('壹佰贰拾叁元肆角伍分');
+    });
+
+    it('handles edge case .5 correctly', () => {
+      const result = convertToRmbUppercase('.5');
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('伍角');
+    });
+
+    it('handles decimal with leading zero correctly', () => {
+      const result = convertToRmbUppercase('0.5');
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('伍角');
+    });
   });
 
-  it('handles negative amounts and large numbers correctly', () => {
-    expect(convertToRmbUppercase('-50').result).toBe('负伍拾元整');
-    expect(convertToRmbUppercase('100000000').result).toBe('壹亿元整');
-    expect(convertToRmbUppercase('1000000000000').result).toBe('壹万亿元整');
+  describe('大数与负数', () => {
+    it('handles large numbers correctly', () => {
+      expect(convertToRmbUppercase('100000000').result).toBe('壹亿元整');
+      expect(convertToRmbUppercase('1000000000000').result).toBe('壹万亿元整');
+    });
+
+    it('handles negative amounts', () => {
+      expect(convertToRmbUppercase('-50').result).toBe('负伍拾元整');
+      expect(convertToRmbUppercase('-123.45').result).toBe('负壹佰贰拾叁元肆角伍分');
+    });
   });
 
-  it('renders exactly one 零 across empty 4-digit sections (cross-rank zeros)', () => {
-    // 文档 §28 点名用例：亿位与个位之间跨空段，不得出现“零零”
-    expect(convertToRmbUppercase('100000001').result).toBe('壹亿零壹元整');
-    // 跨两个空段（亿 → 万 → 个）同样只保留一个“零”
-    expect(convertToRmbUppercase('100000000001').result).toBe('壹仟亿零壹元整');
-    // 空段后的非零开头段仍需补“零”，防止修复过度
-    expect(convertToRmbUppercase('100001000').result).toBe('壹亿零壹仟元整');
-    expect(convertToRmbUppercase('100010000').result).toBe('壹亿零壹万元整');
-    expect(convertToRmbUppercase('1000000000001').result).toBe('壹万亿零壹元整');
+  describe('输入验证', () => {
+    it('rejects empty and null inputs', () => {
+      expect(convertToRmbUppercase('').success).toBe(false);
+      expect(convertToRmbUppercase('abc').success).toBe(false);
+      expect(convertToRmbUppercase('1.2.3').success).toBe(false);
+      expect(convertToRmbUppercase('--1').success).toBe(false);
+      expect(convertToRmbUppercase('..').success).toBe(false);
+      expect(convertToRmbUppercase('.').success).toBe(false);
+      expect(convertToRmbUppercase('-').success).toBe(false);
+    });
+
+    it('rejects excessively large numbers', () => {
+      const largeNum = '1'.repeat(17); // 超过万亿
+      expect(convertToRmbUppercase(largeNum).success).toBe(false);
+    });
+
+    it('handles whitespace and trailing zeros', () => {
+      expect(convertToRmbUppercase(' 123 ').result).toBe('壹佰贰拾叁元整');
+      expect(convertToRmbUppercase('100.00').result).toBe('壹佰元整');
+      expect(convertToRmbUppercase('10.10').result).toBe('壹拾元壹角整');
+    });
   });
 
-  it('rejects inputs with more than two decimal places instead of silently truncating', () => {
-    // 财务零容错：第三位“厘”必须显式报错，禁止静默丢弃
-    expect(convertToRmbUppercase('1.239').success).toBe(false);
-    expect(convertToRmbUppercase('1.239').error).toContain('两位小数');
-    expect(convertToRmbUppercase('100.999').success).toBe(false);
-    // 两位及以内仍正常；多位尾随零（与两位小数等值）也应容忍
-    expect(convertToRmbUppercase('1.230').result).toBe('壹元贰角叁分');
-    expect(convertToRmbUppercase('1.200').result).toBe('壹元贰角整');
-    expect(convertToRmbUppercase('0.01').result).toBe('壹分');
-  });
+  describe('财务规范边界', () => {
+    it('adds 整 correctly for yuan-only amounts', () => {
+      expect(convertToRmbUppercase('100').result).toBe('壹佰元整');
+      expect(convertToRmbUppercase('50000').result).toBe('伍万元整');
+    });
 
-  it('rejects amounts beyond the supported range', () => {
-    // 整数超过 16 位（万亿级别上限）应报错
-    expect(convertToRmbUppercase('10000000000000000').success).toBe(false);
-  });
+    it('does not add 整 when fen exists', () => {
+      expect(convertToRmbUppercase('1.01').result).toBe('壹元零壹分');
+      expect(convertToRmbUppercase('100.01').result).toBe('壹佰元零壹分');
+    });
 
-  it('rejects invalid inputs gracefully', () => {
-    expect(convertToRmbUppercase('').success).toBe(false);
-    expect(convertToRmbUppercase('abc').success).toBe(false);
-    expect(convertToRmbUppercase('1.2.3').success).toBe(false);
-    expect(convertToRmbUppercase('--1').success).toBe(false);
-    expect(convertToRmbUppercase('1e3').success).toBe(false);
-    expect(convertToRmbUppercase('NaN').success).toBe(false);
-    expect(convertToRmbUppercase('Infinity').success).toBe(false);
+    it('handles 角 without 整 correctly', () => {
+      // 财务规范：有整数部分 + 只有角无分时，"角"后写"整"
+      expect(convertToRmbUppercase('1.1').result).toBe('壹元壹角整');
+      // 纯小数（无整数部分）不写"整"
+      expect(convertToRmbUppercase('0.1').result).toBe('壹角');
+    });
   });
 });

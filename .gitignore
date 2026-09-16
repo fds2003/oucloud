@@ -1,55 +1,42 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Diagnostic reports
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories
+# dependencies
 node_modules/
-jspm_packages/
+.pnp
+.pnp.js
 
-# TypeScript cache
-*.tsbuildinfo
-
-# Output of 'npm pack'
-*.tgz
-
-# Build outputs
-dist/
-dist-ssr/
+# testing
 coverage/
-*.local
-
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# Editor / OS
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.DS_Store
-Thumbs.db
-.omo/
-
-# Test reports
 test-results/
 playwright-report/
+
+# production
+dist/
+.next/
+out/
+
+# misc
+.DS_Store
+*.log
+*.tsbuildinfo
+*.local
+
+# env files (can opt-in for storing in repo)
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# agent runtime
+.omo/
+
+# reports
+report.html
+report-*.html

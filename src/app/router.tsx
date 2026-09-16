@@ -1,23 +1,22 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { HomePage } from '../pages/Home/HomePage';
-import { CategoryPage } from '../pages/Category/CategoryPage';
-import { ToolPage } from '../pages/Tool/ToolPage';
-import { AboutPage } from '../pages/Static/AboutPage';
-import { PrivacyPage } from '../pages/Static/PrivacyPage';
-import { TermsPage } from '../pages/Static/TermsPage';
-import { NotFoundPage } from '../pages/Static/NotFoundPage';
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { pages, RouteFallback } from './routes'
 
 export const AppRouter: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/tools/:categorySlug" element={<CategoryPage />} />
-      <Route path="/tools/:category/:slug" element={<ToolPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/privacy" element={<PrivacyPage />} />
-      <Route path="/terms" element={<TermsPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
-  );
-};
+    // Suspense 只在「客户端点击切换路由」时才会真正显示 fallback：
+    // 首屏两端（prerender 的 renderToString 与 main.tsx 的 hydrateRoot）都已预加载
+    // 过当前路由的 chunk，组件同步就绪。
+    <React.Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route path="/" element={<pages.HomePage />} />
+        <Route path="/tools/:categorySlug" element={<pages.CategoryPage />} />
+        <Route path="/tools/:category/:slug" element={<pages.ToolPage />} />
+        <Route path="/about" element={<pages.AboutPage />} />
+        <Route path="/privacy" element={<pages.PrivacyPage />} />
+        <Route path="/terms" element={<pages.TermsPage />} />
+        <Route path="*" element={<pages.NotFoundPage />} />
+      </Routes>
+    </React.Suspense>
+  )
+}

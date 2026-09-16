@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShieldCheck, Zap, Lock } from 'lucide-react';
-import { categories } from '../../data/categories';
-import { SITE } from '../../data/site';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { ShieldCheck, Zap, Lock } from 'lucide-react'
+import { categories } from '../../data/categories'
+import { SITE } from '../../data/site'
 
 export const Footer: React.FC = () => {
   return (
@@ -63,7 +63,10 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs text-slate-600">
               {categories.map((c) => (
                 <li key={c.id}>
-                  <Link to={`/tools/${c.slug}`} className="hover:text-primary-600 transition-colors">
+                  <Link
+                    to={`/tools/${c.slug}`}
+                    className="hover:text-primary-600 transition-colors"
+                  >
                     {c.name}
                   </Link>
                 </li>
@@ -107,7 +110,9 @@ export const Footer: React.FC = () => {
         <div className="mt-12 border-t border-slate-100 pt-6 flex flex-col items-center justify-between gap-2 text-xs text-slate-400 sm:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
             {/* 年份在跨年边界可能与预渲染值不同，显式抑制比对警告 */}
-            <span suppressHydrationWarning>© {new Date().getFullYear()} OUCloud.cn. 保留所有权利。</span>
+            <span suppressHydrationWarning>
+              © {new Date().getFullYear()} OUCloud.cn. 保留所有权利。
+            </span>
             {SITE.icpLicense && (
               <a
                 href="https://beian.miit.gov.cn/"
@@ -121,7 +126,12 @@ export const Footer: React.FC = () => {
           </div>
           <p>纯本地运算 · 隐私优先 · 极简体验</p>
         </div>
+
+        {/* NavBoost 品牌回搜引导 */}
+        <p className="mt-4 text-center text-xs text-slate-400">
+          随时在 Google 或百度搜索「OUCloud + 工具名」，快速找回你需要的在线工具
+        </p>
       </div>
     </footer>
-  );
-};
+  )
+}

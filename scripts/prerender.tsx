@@ -17,6 +17,7 @@ import {
   NOT_FOUND_META,
 } from '../src/data/seo';
 import { buildAbsoluteUrl } from '../src/lib/tools';
+import { preloadRoute } from '../src/app/routes';
 
 console.log('🚀 开始执行 SSG 静态页面预渲染 (真实组件树 renderToString)...');
 
@@ -85,6 +86,11 @@ const h1Of = (html: string) =>
     .trim() ?? '(无 H1)';
 
 for (const target of targets) {
+  // 0. 预加载本路由所需 chunk（页面 + 工具组件）。renderToString 是同步的，
+  //    组件未就绪只会产出 Suspense fallback 骨架 —— 页面照样能打开，但对爬虫
+  //    等于返回空内容。必须先 await。
+  await preloadRoute(target.route);
+
   // 1. 用真实组件树渲染首屏：工具本体、HowTo、FAQ、Schema 全部自动包含
   const bodyHtml = renderToString(
     <StaticRouter location={target.route}>

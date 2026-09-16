@@ -1,14 +1,12 @@
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
+import type { Plugin } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 /**
  * 让 `vite preview` 的目录索引行为与真实静态托管 (Nginx / Netlify / Pages) 一致。
- *
- * 内置静态服务对 `/about` 这类无尾斜杠路径不会回退到 `/about/index.html`，
- * 而是命中 SPA fallback 返回首页 index.html。后果是 e2e 里访问任何路由拿到的
- * 都是首页 HTML，预渲染产物永远测不到，SSR 相关断言全部失真。
  */
 function previewDirectoryIndex(): Plugin {
   return {
@@ -29,18 +27,20 @@ function previewDirectoryIndex(): Plugin {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react(), previewDirectoryIndex()],
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react(), 
+    previewDirectoryIndex(),
+    mode === 'analyze' && visualizer({
+      open: true,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
     }
   },
-  // @ts-expect-error vitest options
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    include: ['tests/unit/**/*.{test,spec}.{ts,tsx}'],
-    setupFiles: []
-  }
-});
+}));

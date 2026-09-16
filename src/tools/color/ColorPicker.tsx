@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/common/Card';
-import { CopyButton } from '../../components/common/CopyButton';
+import React, { useState } from 'react'
+import { Card } from '../../components/common/Card'
+import { CopyButton } from '../../components/common/CopyButton'
 import {
   hexToRgb,
   rgbToHex,
@@ -11,44 +11,56 @@ import {
   isValidHex,
   RGB,
   HSL,
-} from '../../lib/color/conversion';
+} from '../../lib/color/conversion'
 
 const PRESET_COLORS = [
-  '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6',
-  '#ec4899', '#f43f5e', '#ef4444', '#f97316',
-  '#eab308', '#84cc16', '#10b981', '#06b6d4',
-  '#64748b', '#0f172a', '#ffffff', '#000000',
-];
+  '#0ea5e9',
+  '#3b82f6',
+  '#6366f1',
+  '#8b5cf6',
+  '#ec4899',
+  '#f43f5e',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#84cc16',
+  '#10b981',
+  '#06b6d4',
+  '#64748b',
+  '#0f172a',
+  '#ffffff',
+  '#000000',
+]
 
 export const ColorPicker: React.FC = () => {
-  const [hex, setHex] = useState('#0ea5e9');
-  const [rgb, setRgb] = useState<RGB>({ r: 14, g: 165, b: 233 });
-  const [hsl, setHsl] = useState<HSL>({ h: 199, s: 89, l: 48 });
+  const [hex, setHex] = useState('#0ea5e9')
+  const [rgb, setRgb] = useState<RGB>({ r: 14, g: 165, b: 233 })
+  const [hsl, setHsl] = useState<HSL>({ h: 199, s: 89, l: 48 })
 
   const updateFromHex = (newHex: string) => {
-    setHex(newHex);
+    setHex(newHex)
     if (isValidHex(newHex)) {
-      const parsedRgb = hexToRgb(newHex);
+      const parsedRgb = hexToRgb(newHex)
       if (parsedRgb) {
-        setRgb(parsedRgb);
-        setHsl(rgbToHsl(parsedRgb));
+        setRgb(parsedRgb)
+        setHsl(rgbToHsl(parsedRgb))
       }
     }
-  };
+  }
 
   const updateFromRgb = (newRgb: RGB) => {
-    setRgb(newRgb);
-    const newHex = rgbToHex(newRgb);
-    setHex(newHex);
-    setHsl(rgbToHsl(newRgb));
-  };
+    setRgb(newRgb)
+    const newHex = rgbToHex(newRgb)
+    setHex(newHex)
+    setHsl(rgbToHsl(newRgb))
+  }
 
   const updateFromHsl = (newHsl: HSL) => {
-    setHsl(newHsl);
-    const newRgb = hslToRgb(newHsl);
-    setRgb(newRgb);
-    setHex(rgbToHex(newRgb));
-  };
+    setHsl(newHsl)
+    const newRgb = hslToRgb(newHsl)
+    setRgb(newRgb)
+    setHex(rgbToHex(newRgb))
+  }
 
   return (
     <div className="space-y-6">
@@ -199,5 +211,5 @@ export const ColorPicker: React.FC = () => {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}

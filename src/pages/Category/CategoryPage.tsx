@@ -1,32 +1,32 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getCategoryBySlug, buildToolPath } from '../../lib/tools';
-import { tools } from '../../data/tools';
-import { Breadcrumb } from '../../components/layout/Breadcrumb';
-import { SeoHead } from '../../components/seo/SeoHead';
-import { ArrowRight } from 'lucide-react';
-import { NotFoundPage } from '../Static/NotFoundPage';
-import { buildCategoryMeta } from '../../data/seo';
+import React from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { getCategoryBySlug, buildToolPath } from '../../lib/tools'
+import { tools } from '../../data/tools'
+import { Breadcrumb } from '../../components/layout/Breadcrumb'
+import { SeoHead } from '../../components/seo/SeoHead'
+import { ArrowRight } from 'lucide-react'
+import { NotFoundPage } from '../Static/NotFoundPage'
+import { buildCategoryMeta } from '../../data/seo'
 
 export const CategoryPage: React.FC = () => {
-  const { categorySlug } = useParams<{ categorySlug: string }>();
+  const { categorySlug } = useParams<{ categorySlug: string }>()
 
   if (!categorySlug) {
-    return <NotFoundPage />;
+    return <NotFoundPage />
   }
 
-  const category = getCategoryBySlug(categorySlug);
+  const category = getCategoryBySlug(categorySlug)
   if (!category) {
-    return <NotFoundPage />;
+    return <NotFoundPage />
   }
 
-  const categoryTools = tools.filter((t) => t.category === categorySlug && t.status === 'published');
+  const categoryTools = tools.filter((t) => t.category === categorySlug && t.status === 'published')
 
   const breadcrumbItems = [
     {
       label: category.name,
     },
-  ];
+  ]
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -35,9 +35,7 @@ export const CategoryPage: React.FC = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <header className="mb-10">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          {category.name}
-        </h1>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{category.name}</h1>
         <p className="mt-2 text-base text-slate-600 leading-relaxed max-w-2xl">
           {category.description}
         </p>
@@ -70,5 +68,5 @@ export const CategoryPage: React.FC = () => {
         </div>
       </section>
     </div>
-  );
-};
+  )
+}

@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://oucloud.cn';
+export const SITE_URL = 'https://oucloud.cn'
 
 export const SITE = {
   name: 'OUCloud',
@@ -15,11 +15,11 @@ export const SITE = {
     '颜色拾取器',
     '人民币大写转换',
     'favicon 生成器',
-    'CSS 渐变生成器'
+    'CSS 渐变生成器',
   ],
   /**
    * ICP 备案号。备案通过后填入，例如 '粤ICP备2026XXXXXX号'。
    * 为空时页脚不渲染备案信息。
    */
-  icpLicense: ''
-};
+  icpLicense: '',
+}

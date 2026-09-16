@@ -1,46 +1,54 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Sparkles, ArrowRight, Palette, Coins, Image as ImageIcon, Code2 } from 'lucide-react';
-import { ToolMeta } from '../../types/tool';
-import { tools } from '../../data/tools';
-import { categories } from '../../data/categories';
-import { buildToolPath } from '../../lib/tools';
-import { SeoHead } from '../../components/seo/SeoHead';
-import { HOME_META } from '../../data/seo';
+import React, { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  Search,
+  Sparkles,
+  ArrowRight,
+  Palette,
+  Coins,
+  Image as ImageIcon,
+  Code2,
+} from 'lucide-react'
+import { ToolMeta } from '../../types/tool'
+import { tools } from '../../data/tools'
+import { categories } from '../../data/categories'
+import { buildToolPath } from '../../lib/tools'
+import { SeoHead } from '../../components/seo/SeoHead'
+import { HOME_META } from '../../data/seo'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-5 h-5" />,
   Coins: <Coins className="w-5 h-5" />,
   Image: <ImageIcon className="w-5 h-5" />,
   Code2: <Code2 className="w-5 h-5" />,
-};
+}
 
 export const HomePage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('')
 
   // 客户端实时智能搜索（按匹配度排序）
   const filteredTools = useMemo(() => {
     // 只暴露已发布工具：草稿不应出现在首页，否则会链向一个不在 sitemap 中的页面
-    const published = tools.filter((t) => t.status === 'published');
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return published;
+    const published = tools.filter((t) => t.status === 'published')
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return published
 
     return [...published]
       .map((tool) => {
-        let score = 0;
-        if (tool.name.toLowerCase() === q) score += 100;
-        else if (tool.name.toLowerCase().includes(q)) score += 50;
-        else if (tool.keywords.some((k) => k.toLowerCase().includes(q))) score += 30;
-        else if (tool.category.toLowerCase().includes(q)) score += 20;
-        else if (tool.seo.description.toLowerCase().includes(q)) score += 10;
-        return { tool, score };
+        let score = 0
+        if (tool.name.toLowerCase() === q) score += 100
+        else if (tool.name.toLowerCase().includes(q)) score += 50
+        else if (tool.keywords.some((k) => k.toLowerCase().includes(q))) score += 30
+        else if (tool.category.toLowerCase().includes(q)) score += 20
+        else if (tool.seo.description.toLowerCase().includes(q)) score += 10
+        return { tool, score }
       })
       .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score)
-      .map((item) => item.tool);
-  }, [searchQuery]);
+      .map((item) => item.tool)
+  }, [searchQuery])
 
-  const featuredTools = tools.filter((t) => t.featured && t.status === 'published');
+  const featuredTools = tools.filter((t) => t.featured && t.status === 'published')
 
   return (
     <div>
@@ -97,7 +105,9 @@ export const HomePage: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
-                {searchQuery ? `包含“${searchQuery}”的搜索结果 (${filteredTools.length})` : '精选热门工具'}
+                {searchQuery
+                  ? `包含“${searchQuery}”的搜索结果 (${filteredTools.length})`
+                  : '精选热门工具'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 高频使用、确定性高、体验极致的实用小工具
@@ -123,7 +133,8 @@ export const HomePage: React.FC = () => {
                         {tool.category}
                       </span>
                       <span className="text-xs text-slate-400 group-hover:text-primary-600 transition-colors flex items-center gap-1 font-medium">
-                        立即使用 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        立即使用{' '}
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 mt-3 group-hover:text-primary-600 transition-colors">
@@ -159,7 +170,7 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {categories.map((cat) => {
-              const count = tools.filter((t) => t.category === cat.slug).length;
+              const count = tools.filter((t) => t.category === cat.slug).length
               return (
                 <Link
                   key={cat.id}
@@ -167,23 +178,25 @@ export const HomePage: React.FC = () => {
                   className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm hover:border-slate-300 hover:shadow-md transition-all group"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600 mb-3 group-hover:scale-110 transition-transform">
-                    {cat.icon && CATEGORY_ICONS[cat.icon] ? CATEGORY_ICONS[cat.icon] : <Sparkles className="w-5 h-5" />}
+                    {cat.icon && CATEGORY_ICONS[cat.icon] ? (
+                      CATEGORY_ICONS[cat.icon]
+                    ) : (
+                      <Sparkles className="w-5 h-5" />
+                    )}
                   </div>
                   <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary-600 transition-colors">
                     {cat.name}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                    {cat.description}
-                  </p>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{cat.description}</p>
                   <div className="mt-3 text-[11px] font-semibold text-primary-600">
                     收录 {count} 个工具 →
                   </div>
                 </Link>
-              );
+              )
             })}
           </div>
         </section>
       </div>
     </div>
-  );
-};
+  )
+}

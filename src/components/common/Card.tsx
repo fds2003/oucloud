@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  hoverEffect?: boolean;
+  children: React.ReactNode
+  hoverEffect?: boolean
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -20,5 +20,5 @@ export const Card: React.FC<CardProps> = ({
     >
       {children}
     </div>
-  );
-};
+  )
+}

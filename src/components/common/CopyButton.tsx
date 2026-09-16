@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
-import { Button, ButtonProps } from './Button';
-import { copyToClipboard } from '../../lib/browser';
-import { trackEvent } from '../../lib/analytics';
+import React, { useState } from 'react'
+import { Copy, Check } from 'lucide-react'
+import { Button, ButtonProps } from './Button'
+import { copyToClipboard } from '../../lib/browser'
+import { trackEvent } from '../../lib/analytics'
 
 export interface CopyButtonProps extends Omit<ButtonProps, 'children'> {
-  textToCopy: string;
-  label?: string;
-  copiedLabel?: string;
-  toolId?: string;
+  textToCopy: string
+  label?: string
+  copiedLabel?: string
+  toolId?: string
 }
 
 export const CopyButton: React.FC<CopyButtonProps> = ({
@@ -21,18 +21,18 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    const success = await copyToClipboard(textToCopy);
+    const success = await copyToClipboard(textToCopy)
     if (success) {
-      setCopied(true);
+      setCopied(true)
       if (toolId) {
-        trackEvent('tool_copy', { toolId });
+        trackEvent('tool_copy', { toolId })
       }
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 2000)
     }
-  };
+  }
 
   return (
     <Button
@@ -54,5 +54,5 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         </>
       )}
     </Button>
-  );
-};
+  )
+}

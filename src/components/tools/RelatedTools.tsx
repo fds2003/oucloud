@@ -1,15 +1,15 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Wrench } from 'lucide-react';
-import { ToolMeta } from '../../types/tool';
-import { buildToolPath } from '../../lib/tools';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Wrench } from 'lucide-react'
+import { ToolMeta } from '../../types/tool'
+import { buildToolPath } from '../../lib/tools'
 
 export interface RelatedToolsProps {
-  tools: ToolMeta[];
+  tools: ToolMeta[]
 }
 
 export const RelatedTools: React.FC<RelatedToolsProps> = ({ tools }) => {
-  if (!tools || tools.length === 0) return null;
+  if (!tools || tools.length === 0) return null
 
   return (
     <div className="mt-14 border-t border-slate-200 pt-10">
@@ -45,5 +45,5 @@ export const RelatedTools: React.FC<RelatedToolsProps> = ({ tools }) => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}

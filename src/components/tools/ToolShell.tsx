@@ -1,33 +1,29 @@
-import React from 'react';
-import { ToolMeta } from '../../types/tool';
+import React from 'react'
+import { ToolMeta } from '../../types/tool'
 import {
   getCategoryBySlug,
   buildToolPath,
   buildAbsoluteUrl,
   buildCategoryPath,
   SITE_URL,
-} from '../../lib/tools';
-import { Breadcrumb } from '../layout/Breadcrumb';
-import { SeoHead } from '../seo/SeoHead';
-import { JsonLd } from '../seo/JsonLd';
-import { buildToolMeta } from '../../data/seo';
-import { RelatedTools } from './RelatedTools';
-import { BookOpen, HelpCircle, ListOrdered, Shield } from 'lucide-react';
+} from '../../lib/tools'
+import { Breadcrumb } from '../layout/Breadcrumb'
+import { SeoHead } from '../seo/SeoHead'
+import { JsonLd } from '../seo/JsonLd'
+import { buildToolMeta } from '../../data/seo'
+import { RelatedTools } from './RelatedTools'
+import { BookOpen, HelpCircle, ListOrdered, Search, Shield, Table2 } from 'lucide-react'
 
 export interface ToolShellProps {
-  tool: ToolMeta;
-  relatedTools: ToolMeta[];
-  children: React.ReactNode;
+  tool: ToolMeta
+  relatedTools: ToolMeta[]
+  children: React.ReactNode
 }
 
-export const ToolShell: React.FC<ToolShellProps> = ({
-  tool,
-  relatedTools,
-  children,
-}) => {
-  const category = getCategoryBySlug(tool.category);
-  const toolUrl = buildToolPath(tool);
-  const absoluteUrl = buildAbsoluteUrl(toolUrl);
+export const ToolShell: React.FC<ToolShellProps> = ({ tool, relatedTools, children }) => {
+  const category = getCategoryBySlug(tool.category)
+  const toolUrl = buildToolPath(tool)
+  const absoluteUrl = buildAbsoluteUrl(toolUrl)
 
   const breadcrumbItems = [
     {
@@ -37,7 +33,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
     {
       label: tool.shortName || tool.name,
     },
-  ];
+  ]
 
   // WebApplication Schema
   const webAppSchema = {
@@ -53,7 +49,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
       price: '0',
       priceCurrency: 'CNY',
     },
-  };
+  }
 
   // BreadcrumbList Schema
   const breadcrumbSchema = {
@@ -79,7 +75,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
         item: absoluteUrl,
       },
     ],
-  };
+  }
 
   // FAQPage Schema (仅在存在真实 FAQ 时注入)
   const faqSchema =
@@ -96,7 +92,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
             },
           })),
         }
-      : null;
+      : null
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
@@ -127,9 +123,58 @@ export const ToolShell: React.FC<ToolShellProps> = ({
       </header>
 
       {/* 核心工具操作区 (Tool First) */}
-      <main className="mb-14">
-        {children}
-      </main>
+      <main className="mb-14">{children}</main>
+
+      {/* Position 0 速查表 (静态答案，供搜索引擎抓取精选摘要) */}
+      {tool.seo.quickReference && (
+        <section className="mt-12 rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+            <Table2 className="w-5 h-5 text-primary-600" />
+            {tool.seo.quickReference.title}
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-slate-200">
+                  {tool.seo.quickReference.columns.map((col, idx) => (
+                    <th
+                      key={idx}
+                      className="py-2 pr-4 text-left text-xs font-semibold tracking-wide text-slate-500"
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tool.seo.quickReference.rows.map((row, rowIdx) => (
+                  <tr key={rowIdx} className="border-b border-slate-100 last:border-0">
+                    {row.map((cell, cellIdx) => (
+                      <td
+                        key={cellIdx}
+                        className={`py-2 pr-4 align-top leading-relaxed ${
+                          cellIdx === 0
+                            ? 'font-mono text-slate-900'
+                            : cellIdx === 1
+                              ? 'font-semibold text-slate-900'
+                              : 'text-slate-600'
+                        }`}
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {tool.seo.quickReference.caption && (
+            <p className="mt-3 text-xs text-slate-400 leading-relaxed">
+              {tool.seo.quickReference.caption}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* 使用说明 (How to Use) */}
       {tool.seo.howTo && tool.seo.howTo.length > 0 && (
@@ -140,7 +185,10 @@ export const ToolShell: React.FC<ToolShellProps> = ({
           </h2>
           <ol className="space-y-3">
             {tool.seo.howTo.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
+              <li
+                key={idx}
+                className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed"
+              >
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700">
                   {idx + 1}
                 </span>
@@ -158,9 +206,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
             <BookOpen className="w-5 h-5 text-primary-600" />
             原理解析与标准规范
           </h2>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            {tool.seo.explanation}
-          </p>
+          <p className="text-sm text-slate-600 leading-relaxed">{tool.seo.explanation}</p>
         </section>
       )}
 
@@ -174,9 +220,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
           <div className="space-y-4">
             {tool.seo.faq.map((item, idx) => (
               <div key={idx} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                <h3 className="text-sm font-semibold text-slate-800">
-                  {item.question}
-                </h3>
+                <h3 className="text-sm font-semibold text-slate-800">{item.question}</h3>
                 <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">
                   {item.answer}
                 </p>
@@ -188,6 +232,14 @@ export const ToolShell: React.FC<ToolShellProps> = ({
 
       {/* 相关工具推荐 (Topic Cluster) */}
       <RelatedTools tools={relatedTools} />
+
+      {/* NavBoost 品牌回搜引导（沉淀「OUCloud + 工具名」品牌实体） */}
+      <div className="mt-8 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+        <Search className="w-3.5 h-3.5 shrink-0" />
+        <span>
+          随时在 Google 或百度搜索「OUCloud {tool.shortName || tool.name}」，快速找回本工具
+        </span>
+      </div>
     </div>
-  );
-};
+  )
+}

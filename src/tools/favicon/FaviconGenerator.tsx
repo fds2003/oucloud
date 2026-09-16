@@ -1,63 +1,63 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/common/Card';
-import { Button } from '../../components/common/Button';
-import { CopyButton } from '../../components/common/CopyButton';
-import { FileDropzone } from '../../components/common/FileDropzone';
-import { downloadBlob, readFileAsDataURL } from '../../lib/browser';
-import { trackEvent } from '../../lib/analytics';
-import {
-  FAVICON_SIZES,
-  createFaviconZip,
-  generateHtmlSnippets,
-} from '../../lib/image/favicon';
-import { Download, CheckCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import React, { useState } from 'react'
+import { Card } from '../../components/common/Card'
+import { Button } from '../../components/common/Button'
+import { CopyButton } from '../../components/common/CopyButton'
+import { FileDropzone } from '../../components/common/FileDropzone'
+import { downloadBlob, readFileAsDataURL } from '../../lib/browser'
+import { trackEvent } from '../../lib/analytics'
+import { FAVICON_SIZES, createFaviconZip, generateHtmlSnippets } from '../../lib/image/favicon'
+import { Download, CheckCircle, Image as ImageIcon, Loader2 } from 'lucide-react'
 
 export const FaviconGenerator: React.FC = () => {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleFileSelect = async (file: File) => {
+    setErrorMessage(null)
     if (!file.type.startsWith('image/')) {
-      alert('请选择有效的图片文件 (PNG, JPG, WebP)');
-      return;
+      setErrorMessage('请选择有效的图片文件 (PNG, JPG, WebP)')
+      return
     }
 
     try {
-      trackEvent('tool_start', { toolId: 'favicon-generator' });
-      const src = await readFileAsDataURL(file);
-      setImageSrc(src);
+      trackEvent('tool_start', { toolId: 'favicon-generator' })
+      const src = await readFileAsDataURL(file)
+      setImageSrc(src)
 
-      const img = new Image();
+      const img = new Image()
       img.onload = () => {
-        setImageElement(img);
-      };
-      img.src = src;
+        setImageElement(img)
+      }
+      img.src = src
     } catch (err) {
-      console.error(err);
-      trackEvent('tool_error', { toolId: 'favicon-generator', errorCode: 'READ_FILE_ERROR' });
+      console.error(err)
+      trackEvent('tool_error', { toolId: 'favicon-generator', errorCode: 'READ_FILE_ERROR' })
+      setErrorMessage('读取文件失败，请重试')
     }
-  };
+  }
 
   const handleDownload = async () => {
-    if (!imageElement) return;
+    if (!imageElement) return
 
     try {
-      setIsGenerating(true);
-      const zipBlob = await createFaviconZip(imageElement);
-      downloadBlob(zipBlob, 'favicons-oucloud.zip');
-      trackEvent('tool_download', { toolId: 'favicon-generator' });
-      trackEvent('tool_complete', { toolId: 'favicon-generator' });
+      setIsGenerating(true)
+      setErrorMessage(null)
+      const zipBlob = await createFaviconZip(imageElement)
+      downloadBlob(zipBlob, 'favicons-oucloud.zip')
+      trackEvent('tool_download', { toolId: 'favicon-generator' })
+      trackEvent('tool_complete', { toolId: 'favicon-generator' })
     } catch (err) {
-      console.error(err);
-      trackEvent('tool_error', { toolId: 'favicon-generator', errorCode: 'ZIP_GENERATE_ERROR' });
-      alert('生成 Favicon 失败，请检查图片格式');
+      console.error(err)
+      trackEvent('tool_error', { toolId: 'favicon-generator', errorCode: 'ZIP_GENERATE_ERROR' })
+      setErrorMessage('生成 Favicon 失败，请检查图片格式')
     } finally {
-      setIsGenerating(false);
+      setIsGenerating(false)
     }
-  };
+  }
 
-  const htmlCode = generateHtmlSnippets();
+  const htmlCode = generateHtmlSnippets()
 
   return (
     <div className="space-y-6">
@@ -71,6 +71,13 @@ export const FaviconGenerator: React.FC = () => {
             subtitle="支持 PNG, JPG, WebP 格式（推荐使用 512x512 纯透明背景方形图片）"
           />
 
+          {/* 错误消息 */}
+          {errorMessage && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {errorMessage}
+            </div>
+          )}
+
           {/* 预览与生成操作 */}
           {imageSrc && (
             <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-6">
@@ -82,9 +89,7 @@ export const FaviconGenerator: React.FC = () => {
                     className="w-16 h-16 rounded-lg object-contain border border-slate-200 bg-slate-50 p-1"
                   />
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-900">
-                      图片已加载完成
-                    </h4>
+                    <h4 className="text-sm font-semibold text-slate-900">图片已加载完成</h4>
                     <p className="text-xs text-emerald-600 flex items-center gap-1 mt-0.5">
                       <CheckCircle className="w-3.5 h-3.5" /> 本地安全就绪，随时可导出
                     </p>
@@ -126,7 +131,10 @@ export const FaviconGenerator: React.FC = () => {
                         <img
                           src={imageSrc}
                           alt={item.name}
-                          style={{ width: `${Math.min(item.size, 36)}px`, height: `${Math.min(item.size, 36)}px` }}
+                          style={{
+                            width: `${Math.min(item.size, 36)}px`,
+                            height: `${Math.min(item.size, 36)}px`,
+                          }}
                           className="object-contain"
                         />
                       </div>
@@ -160,5 +168,5 @@ export const FaviconGenerator: React.FC = () => {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
-import { categories } from '../../data/categories';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Sparkles } from 'lucide-react'
+import { categories } from '../../data/categories'
 
 export const Header: React.FC = () => {
   return (
@@ -66,5 +66,5 @@ export const Header: React.FC = () => {
         ))}
       </nav>
     </header>
-  );
-};
+  )
+}

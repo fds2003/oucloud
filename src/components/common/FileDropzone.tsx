@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
-import { Upload } from 'lucide-react';
+import React, { useRef, useState } from 'react'
+import { Upload } from 'lucide-react'
 
 export interface FileDropzoneProps {
-  accept?: string;
-  onFileSelect: (file: File) => void;
-  title?: string;
-  subtitle?: string;
-  className?: string;
+  accept?: string
+  onFileSelect: (file: File) => void
+  title?: string
+  subtitle?: string
+  className?: string
 }
 
 export const FileDropzone: React.FC<FileDropzoneProps> = ({
@@ -16,34 +16,34 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
   subtitle = '支持常见文件格式，纯浏览器本地运算保障隐私',
   className = '',
 }) => {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragOver, setIsDragOver] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
+    e.preventDefault()
+    setIsDragOver(true)
+  }
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
+    e.preventDefault()
+    setIsDragOver(false)
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files?.[0];
+    e.preventDefault()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files?.[0]
     if (file) {
-      onFileSelect(file);
+      onFileSelect(file)
     }
-  };
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      onFileSelect(file);
+      onFileSelect(file)
     }
-  };
+  }
 
   return (
     <div
@@ -74,5 +74,5 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

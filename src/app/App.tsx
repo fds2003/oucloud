@@ -1,7 +1,7 @@
-import React from 'react';
-import { Header } from '../components/layout/Header';
-import { Footer } from '../components/layout/Footer';
-import { AppRouter } from './router';
+import React from 'react'
+import { Header } from '../components/layout/Header'
+import { Footer } from '../components/layout/Footer'
+import { AppRouter } from './router'
 
 export const App: React.FC = () => {
   return (
@@ -12,5 +12,5 @@ export const App: React.FC = () => {
       </div>
       <Footer />
     </div>
-  );
-};
+  )
+}
