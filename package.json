@@ -10,11 +10,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "playwright test",
     "tools:validate": "tsx scripts/validate-tools.ts",
     "seo:validate": "tsx scripts/validate-seo.ts",
     "sitemap": "tsx scripts/generate-sitemap.ts",
     "check": "pnpm typecheck && pnpm test && pnpm tools:validate",
-    "ci": "pnpm run check && pnpm run build"
+    "ci": "pnpm run check && pnpm run build && pnpm e2e"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -26,6 +27,7 @@
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@testing-library/react": "^16.0.1",
     "@types/jsdom": "^21.1.7",
     "@types/jszip": "^3.4.1",

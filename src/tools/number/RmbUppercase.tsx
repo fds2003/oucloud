@@ -36,7 +36,7 @@ export const RmbUppercase: React.FC = () => {
                     onClick={() => setInputVal(p.val)}
                     className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded transition-colors"
                   >
-                    {p.val}
+                    {p.label}
                   </button>
                 ))}
               </div>

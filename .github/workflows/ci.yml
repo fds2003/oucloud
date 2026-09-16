@@ -51,3 +51,9 @@ jobs:
 
       - name: Build site (SSG + SEO generation + validation)
         run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm e2e

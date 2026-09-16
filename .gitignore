@@ -48,6 +48,7 @@ coverage/
 *.sw?
 .DS_Store
 Thumbs.db
+.omo/
 
 # Test reports
 test-results/
