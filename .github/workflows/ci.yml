@@ -12,7 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        # Node 18 与 20 均已 EOL，仅保留仍在维护期的 LTS（22.x 支持至 2027-04）
+        node-version: [22.x]
 
     steps:
       - name: Checkout

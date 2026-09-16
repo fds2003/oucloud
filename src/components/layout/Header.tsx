@@ -42,14 +42,6 @@ export const Header: React.FC = () => {
           >
             关于平台
           </Link>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            GitHub
-          </a>
         </div>
       </div>
 

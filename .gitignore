@@ -36,6 +36,7 @@ Thumbs.db
 
 # agent runtime
 .omo/
+.playwright-mcp/
 
 # reports
 report.html
