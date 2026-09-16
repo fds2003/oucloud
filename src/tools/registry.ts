@@ -17,6 +17,24 @@ const importers = {
     import('./favicon/FaviconGenerator').then((m) => ({ default: m.FaviconGenerator })),
   GradientGenerator: () =>
     import('./css/GradientGenerator').then((m) => ({ default: m.GradientGenerator })),
+  PngToIco: () => import('./favicon/PngToIco').then((m) => ({ default: m.PngToIco })),
+  BoxShadowGenerator: () =>
+    import('./css/BoxShadowGenerator').then((m) => ({ default: m.BoxShadowGenerator })),
+  ImageColorPicker: () =>
+    import('./color/ImageColorPicker').then((m) => ({ default: m.ImageColorPicker })),
+  HexToRgb: () => import('./color/HexToRgb').then((m) => ({ default: m.HexToRgb })),
+  TimestampConverter: () =>
+    import('./number/TimestampConverter').then((m) => ({ default: m.TimestampConverter })),
+  TextToFavicon: () =>
+    import('./favicon/TextToFavicon').then((m) => ({ default: m.TextToFavicon })),
+  SvgToFavicon: () =>
+    import('./favicon/SvgToFavicon').then((m) => ({ default: m.SvgToFavicon })),
+  ContrastChecker: () =>
+    import('./color/ContrastChecker').then((m) => ({ default: m.ContrastChecker })),
+  BorderRadiusGenerator: () =>
+    import('./css/BorderRadiusGenerator').then((m) => ({ default: m.BorderRadiusGenerator })),
+  DaxieGuifan: () =>
+    import('./number/DaxieGuifan').then((m) => ({ default: m.DaxieGuifan })),
 }
 
 export type ToolComponentName = keyof typeof importers

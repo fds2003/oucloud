@@ -145,6 +145,21 @@ export async function createFaviconZip(img: HTMLImageElement): Promise<Blob> {
 }
 
 /**
+ * 将图片直接封装并导出为标准多帧 .ico 文件（内置 16x16, 32x32, 48x48 帧，适用于 Windows 图标与浏览器 favicon.ico）
+ */
+export async function convertImageToIcoBlob(
+  img: HTMLImageElement,
+  frameSizes: number[] = ICO_FRAME_SIZES
+): Promise<Blob> {
+  const icoFrames: { size: number; png: Blob }[] = []
+  for (const size of frameSizes) {
+    const png = await resizeImageToBlob(img, size)
+    icoFrames.push({ size, png })
+  }
+  return pngFramesToIco(icoFrames)
+}
+
+/**
  * 生成标准 HTML Link 标签代码
  */
 export function generateHtmlSnippets(): string {

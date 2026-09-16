@@ -26,6 +26,57 @@ export function formatCssGradient(config: GradientConfig): string {
   return `linear-gradient(${config.angle}deg, ${stopsStr})`
 }
 
+/**
+ * 生成适用于 Tailwind CSS 的实用类（Utility Class）或任意值类（Arbitrary Value）
+ */
+export function formatTailwindGradient(config: GradientConfig): string {
+  const sortedStops = [...config.stops].sort((a, b) => a.position - b.position)
+
+  if (config.type === 'linear') {
+    const angleMap: Record<number, string> = {
+      0: 'bg-gradient-to-t',
+      45: 'bg-gradient-to-tr',
+      90: 'bg-gradient-to-r',
+      135: 'bg-gradient-to-br',
+      180: 'bg-gradient-to-b',
+      225: 'bg-gradient-to-bl',
+      270: 'bg-gradient-to-l',
+      315: 'bg-gradient-to-tl',
+      360: 'bg-gradient-to-t',
+    }
+
+    const dirClass = angleMap[config.angle]
+    const pFrom = 'from-'
+    const pVia = 'via-'
+    const pTo = 'to-'
+
+    if (
+      dirClass &&
+      sortedStops.length === 2 &&
+      sortedStops[0].position === 0 &&
+      sortedStops[1].position === 100
+    ) {
+      return `${dirClass} ${pFrom}[${sortedStops[0].color}] ${pTo}[${sortedStops[1].color}]`
+    }
+
+    if (
+      dirClass &&
+      sortedStops.length === 3 &&
+      sortedStops[0].position === 0 &&
+      sortedStops[1].position === 50 &&
+      sortedStops[2].position === 100
+    ) {
+      return `${dirClass} ${pFrom}[${sortedStops[0].color}] ${pVia}[${sortedStops[1].color}] ${pTo}[${sortedStops[2].color}]`
+    }
+  }
+
+  // JIT 任意值语法（全角度、径向渐变及自定义位置 100% 兼容）
+  const css = formatCssGradient(config)
+  const escaped = css.replace(/\s*,\s*/g, ',').replace(/\s+/g, '_')
+  const pBg = 'bg-'
+  return `${pBg}[${escaped}]`
+}
+
 export interface GradientBorderOptions {
   /** 边框宽度（px） */
   width: number

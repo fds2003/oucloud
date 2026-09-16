@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   formatCssGradient,
+  formatTailwindGradient,
   formatGradientBorderClip,
   formatGradientBorderImage,
   GradientConfig,
@@ -48,6 +49,49 @@ describe('CSS Gradient Engine - 完整测试', () => {
       };
       expect(formatCssGradient(config)).toBe(
         'linear-gradient(0deg, #ff0000 0%, #00ff00 50%, #0000ff 100%)'
+      );
+    });
+  });
+
+  describe('Tailwind CSS 导出格式化', () => {
+    it('生成标准双色标 Tailwind 类名', () => {
+      const config: GradientConfig = {
+        type: 'linear',
+        angle: 90,
+        stops: [
+          { id: '1', color: '#0ea5e9', position: 0 },
+          { id: '2', color: '#6366f1', position: 100 },
+        ],
+      };
+      expect(formatTailwindGradient(config)).toBe('bg-gradient-to-r from-[#0ea5e9] to-[#6366f1]');
+    });
+
+    it('生成三色标 Tailwind 类名', () => {
+      const config: GradientConfig = {
+        type: 'linear',
+        angle: 45,
+        stops: [
+          { id: '1', color: '#f72585', position: 0 },
+          { id: '2', color: '#7209b7', position: 50 },
+          { id: '3', color: '#4cc9f0', position: 100 },
+        ],
+      };
+      expect(formatTailwindGradient(config)).toBe(
+        'bg-gradient-to-tr from-[#f72585] via-[#7209b7] to-[#4cc9f0]'
+      );
+    });
+
+    it('对非标准角度或径向渐变回退为 JIT 任意值类', () => {
+      const config: GradientConfig = {
+        type: 'linear',
+        angle: 123,
+        stops: [
+          { id: '1', color: '#ff0000', position: 0 },
+          { id: '2', color: '#0000ff', position: 100 },
+        ],
+      };
+      expect(formatTailwindGradient(config)).toBe(
+        'bg-[linear-gradient(123deg,#ff0000_0%,#0000ff_100%)]'
       );
     });
   });

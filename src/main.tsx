@@ -9,7 +9,12 @@ const rootElement = document.getElementById('root')
 if (rootElement) {
   const tree = (
     <React.StrictMode>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <App />
       </BrowserRouter>
     </React.StrictMode>
@@ -33,4 +38,18 @@ if (rootElement) {
   preloadRoute(window.location.pathname)
     .catch(() => undefined)
     .then(mount)
+}
+
+// 注册离线 Service Worker (仅在生产构建环境启用，避免拦截 Vite 开发期 HMR 与模块解析)
+if (
+  import.meta.env.PROD &&
+  typeof window !== 'undefined' &&
+  'serviceWorker' in navigator &&
+  window.location.protocol.startsWith('http')
+) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // 静默降级，不阻断主流程
+    })
+  })
 }

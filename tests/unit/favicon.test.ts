@@ -3,6 +3,7 @@ import {
   FAVICON_SIZES,
   generateHtmlSnippets,
   createFaviconZip,
+  convertImageToIcoBlob,
   resizeImageToBlob,
 } from '../../src/lib/image/favicon';
 
@@ -177,6 +178,15 @@ describe('Favicon Engine - Canvas 与 ZIP 打包测试', () => {
       expect(readmeCall).toBeDefined();
       expect(readmeCall![1]).toContain('<link rel="icon"');
       expect(readmeCall![1]).toContain('favicon.ico');
+    });
+  });
+
+  describe('convertImageToIcoBlob', () => {
+    it('should return a valid ICO blob with correct mime type', async () => {
+      const icoBlob = await convertImageToIcoBlob(mockImage);
+      expect(icoBlob).toBeInstanceOf(Blob);
+      expect(icoBlob.type).toBe('image/x-icon');
+      expect(icoBlob.size).toBeGreaterThan(0);
     });
   });
 });

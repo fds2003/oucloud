@@ -22,6 +22,16 @@ export function isValidHex(hex: string): boolean {
 }
 
 /**
+ * 解析并规范化 URL Query 参数中的 HEX 颜色（支持带或不带 # 前缀，如 "ff7e5f" 或 "#ff7e5f"）
+ */
+export function parseHexParam(param: string | null | undefined): string | null {
+  if (!param) return null
+  const trimmed = param.trim()
+  const normalized = trimmed.startsWith('#') ? trimmed : `#${trimmed}`
+  return isValidHex(normalized) ? normalized.toLowerCase() : null
+}
+
+/**
  * HEX 转换为 RGB
  */
 export function hexToRgb(hex: string): RGB | null {
@@ -133,4 +143,52 @@ export function formatRgb(rgb: RGB): string {
 
 export function formatHsl(hsl: HSL): string {
   return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`
+}
+
+/**
+ * 计算颜色的相对亮度 (Relative Luminance, WCAG 2.1)
+ * 标准公式：L = 0.2126 * R + 0.7152 * G + 0.0722 * B
+ */
+export function getRelativeLuminance(rgb: RGB): number {
+  const srgb = [rgb.r / 255, rgb.g / 255, rgb.b / 255].map((val) =>
+    val <= 0.04045 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4)
+  )
+  return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
+}
+
+/**
+ * 计算两个 RGB 颜色的对比度比率 (1:1 到 21:1)
+ * WCAG 2.1 规范要求：普通文本至少 4.5:1 (AA) 或 7:1 (AAA)；大文本/UI组件至少 3:1 (AA)
+ */
+export function getContrastRatio(rgb1: RGB, rgb2: RGB): number {
+  const l1 = getRelativeLuminance(rgb1)
+  const l2 = getRelativeLuminance(rgb2)
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+export interface ColorHarmonies {
+  complementary: string
+  analogous: [string, string]
+  triadic: [string, string]
+}
+
+/**
+ * 基于 HSL 动态计算配色方案（互补色、类似色、三角色）
+ */
+export function getColorHarmonies(hsl: HSL): ColorHarmonies {
+  const modHue = (h: number) => ((h % 360) + 360) % 360
+
+  const compHsl: HSL = { ...hsl, h: modHue(hsl.h + 180) }
+  const ana1Hsl: HSL = { ...hsl, h: modHue(hsl.h + 30) }
+  const ana2Hsl: HSL = { ...hsl, h: modHue(hsl.h - 30) }
+  const tri1Hsl: HSL = { ...hsl, h: modHue(hsl.h + 120) }
+  const tri2Hsl: HSL = { ...hsl, h: modHue(hsl.h + 240) }
+
+  return {
+    complementary: rgbToHex(hslToRgb(compHsl)),
+    analogous: [rgbToHex(hslToRgb(ana1Hsl)), rgbToHex(hslToRgb(ana2Hsl))],
+    triadic: [rgbToHex(hslToRgb(tri1Hsl)), rgbToHex(hslToRgb(tri2Hsl))],
+  }
 }

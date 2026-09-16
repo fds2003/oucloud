@@ -1,0 +1,18 @@
+# 全站全局安全响应头
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# 静态资源指纹 Chunk 强缓存 1 年 (Vite 构建产物自带 hash，可永久缓存)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML 预渲染页面协商缓存 (确保版本发布后访客即时更新)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 离线 Service Worker 脚本绝不强缓存 (确保离线策略更新畅通)
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate

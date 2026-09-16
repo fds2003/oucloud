@@ -108,6 +108,7 @@ for (const target of targets) {
   html = html
     .replace(/<link\s+rel="canonical"[^>]*>\s*/gi, '')
     .replace(/<meta\s+property="og:[^"]*"[^>]*>\s*/gi, '')
+    .replace(/<meta\s+name="twitter:[^"]*"[^>]*>\s*/gi, '')
     .replace(/<meta\s+name="robots"[^>]*>\s*/gi, '');
 
   // 3. 替换 Title 与 Description（与运行时 SeoHead 同源）
@@ -129,6 +130,13 @@ for (const target of targets) {
     ${target.canonicalUrl ? `<meta property="og:url" content="${esc(target.canonicalUrl)}" />` : ''}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OUCloud" />
+    <meta property="og:image" content="${esc(buildAbsoluteUrl('/og-image.jpg'))}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${esc(target.title)}" />
+    <meta name="twitter:description" content="${esc(target.description)}" />
+    <meta name="twitter:image" content="${esc(buildAbsoluteUrl('/og-image.jpg'))}" />
   `;
   html = html.replace('</head>', `${headExtra}\n</head>`);
 

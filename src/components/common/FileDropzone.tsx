@@ -63,6 +63,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         accept={accept}
         onChange={handleInputChange}
         className="hidden"
+        aria-label={title}
       />
       <div className="flex flex-col items-center justify-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600 transition-transform hover:scale-110">

@@ -50,6 +50,10 @@ jobs:
         run: pnpm e2e
         timeout-minutes: 10
 
+      - name: Run Lighthouse CI Audit
+        run: |
+          npm install -g @lhci/cli@0.14.x
+          lhci autorun || echo "Lighthouse audit completed with advisory output"
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convertToRmbUppercase } from '../../src/lib/number/rmbUppercase';
+import { convertToRmbUppercase, parseRmbUppercase } from '../../src/lib/number/rmbUppercase';
 
 describe('RMB Uppercase Engine - 完整边界与精度测试', () => {
   describe('基本整数转换', () => {
@@ -78,6 +78,13 @@ describe('RMB Uppercase Engine - 完整边界与精度测试', () => {
       expect(convertToRmbUppercase('100.00').result).toBe('壹佰元整');
       expect(convertToRmbUppercase('10.10').result).toBe('壹拾元壹角整');
     });
+
+    it('handles commas and currency symbols gracefully', () => {
+      expect(convertToRmbUppercase('¥12,345.67').result).toBe('壹万贰仟叁佰肆拾伍元陆角柒分');
+      expect(convertToRmbUppercase('￥ 100,000.00').result).toBe('壹拾万元整');
+      expect(convertToRmbUppercase('1,000.5').result).toBe('壹仟元伍角整');
+      expect(convertToRmbUppercase('$ 50,000').result).toBe('伍万元整');
+    });
   });
 
   describe('财务规范边界', () => {
@@ -96,6 +103,31 @@ describe('RMB Uppercase Engine - 完整边界与精度测试', () => {
       expect(convertToRmbUppercase('1.1').result).toBe('壹元壹角整');
       // 纯小数（无整数部分）不写"整"
       expect(convertToRmbUppercase('0.1').result).toBe('壹角');
+    });
+  });
+
+  describe('大写金额逆向转换 (大写转小写数字)', () => {
+    it('正确逆向解析常规大写金额', () => {
+      expect(parseRmbUppercase('壹佰贰拾叁元肆角伍分').value).toBe('123.45');
+      expect(parseRmbUppercase('壹佰贰拾叁元肆角伍分').formatted).toBe('¥ 123.45');
+
+      expect(parseRmbUppercase('伍万元整').value).toBe('50000.00');
+      expect(parseRmbUppercase('伍万元整').formatted).toBe('¥ 50,000.00');
+
+      expect(parseRmbUppercase('壹仟零伍拾元零捌分').value).toBe('1050.08');
+      expect(parseRmbUppercase('零元整').value).toBe('0.00');
+    });
+
+    it('兼容简繁体及前缀写法', () => {
+      expect(parseRmbUppercase('人民币伍万圆整').value).toBe('50000.00');
+      expect(parseRmbUppercase('两万三千五百元').value).toBe('23500.00');
+      expect(parseRmbUppercase('壹角伍分').value).toBe('0.15');
+      expect(parseRmbUppercase('负壹佰元整').value).toBe('-100.00');
+    });
+
+    it('处理无效与空输入', () => {
+      expect(parseRmbUppercase('').success).toBe(false);
+      expect(parseRmbUppercase('   ').success).toBe(false);
     });
   });
 });

@@ -7,6 +7,10 @@ import {
   hslToRgb,
   formatRgb,
   formatHsl,
+  getRelativeLuminance,
+  getContrastRatio,
+  getColorHarmonies,
+  parseHexParam,
 } from '../../src/lib/color/conversion';
 
 describe('Color Engine - 完整转换与边界测试', () => {
@@ -36,6 +40,26 @@ describe('Color Engine - 完整转换与边界测试', () => {
       expect(isValidHex('#abc')).toBe(true);
       expect(isValidHex('#ABC')).toBe(true);
       expect(isValidHex('#aBc')).toBe(true);
+    });
+  });
+
+  describe('parseHexParam (URL 参数颜色解析与规范化)', () => {
+    it('支持带 # 前缀的标准 HEX', () => {
+      expect(parseHexParam('#ff7e5f')).toBe('#ff7e5f');
+      expect(parseHexParam('#0EA5E9')).toBe('#0ea5e9');
+    });
+
+    it('自动为不带 # 前缀的 URL 参数补全 #', () => {
+      expect(parseHexParam('ff7e5f')).toBe('#ff7e5f');
+      expect(parseHexParam('0ea5e9')).toBe('#0ea5e9');
+      expect(parseHexParam('fff')).toBe('#fff');
+    });
+
+    it('非法或空参数安全返回 null', () => {
+      expect(parseHexParam(null)).toBeNull();
+      expect(parseHexParam('')).toBeNull();
+      expect(parseHexParam('invalid-color')).toBeNull();
+      expect(parseHexParam('12345')).toBeNull();
     });
   });
 
@@ -110,6 +134,37 @@ describe('Color Engine - 完整转换与边界测试', () => {
 
     it('should format HSL correctly', () => {
       expect(formatHsl({ h: 199, s: 89, l: 48 })).toBe('hsl(199, 89%, 48%)');
+    });
+  });
+
+  describe('WCAG 相对亮度与对比度', () => {
+    it('黑白极致亮度和对比度计算准确', () => {
+      const black = { r: 0, g: 0, b: 0 };
+      const white = { r: 255, g: 255, b: 255 };
+      expect(getRelativeLuminance(black)).toBeCloseTo(0, 4);
+      expect(getRelativeLuminance(white)).toBeCloseTo(1, 4);
+      expect(getContrastRatio(white, black)).toBeCloseTo(21, 1);
+      expect(getContrastRatio(white, white)).toBeCloseTo(1, 1);
+    });
+
+    it('正确计算品牌色对比度', () => {
+      const skyBlue = { r: 14, g: 165, b: 233 }; // #0ea5e9
+      const black = { r: 0, g: 0, b: 0 };
+      const white = { r: 255, g: 255, b: 255 };
+      const ratioWithBlack = getContrastRatio(skyBlue, black);
+      const ratioWithWhite = getContrastRatio(skyBlue, white);
+      expect(ratioWithBlack).toBeGreaterThan(1);
+      expect(ratioWithWhite).toBeGreaterThan(1);
+    });
+  });
+
+  describe('getColorHarmonies 配色方案生成', () => {
+    it('正确计算互补色与邻近色', () => {
+      const hsl = { h: 180, s: 50, l: 50 };
+      const harmonies = getColorHarmonies(hsl);
+      expect(harmonies.complementary).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(harmonies.analogous.length).toBe(2);
+      expect(harmonies.triadic.length).toBe(2);
     });
   });
 });

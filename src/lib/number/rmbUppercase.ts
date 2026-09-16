@@ -42,7 +42,13 @@ export function convertToRmbUppercase(inputVal: string | number): RmbConversionR
     return { success: false, result: '', error: '输入金额不能为空' }
   }
 
-  const raw = String(inputVal).trim()
+  let raw = String(inputVal).trim()
+  if (!raw) {
+    return { success: false, result: '', error: '输入金额不能为空' }
+  }
+
+  // 自动清洗常见前缀与千分位分隔符：例如 "¥", "￥", "$", "RMB", "，", ",", 内部空格
+  raw = raw.replace(/[¥￥$RMBrmb\s,，]/g, '')
   if (!raw) {
     return { success: false, result: '', error: '输入金额不能为空' }
   }
@@ -151,5 +157,191 @@ export function convertToRmbUppercase(inputVal: string | number): RmbConversionR
   return {
     success: true,
     result: chineseStr,
+  }
+}
+
+export interface RmbParseResult {
+  success: boolean
+  value: string // 纯数字，如 "12345.67"
+  formatted: string // 带千分位与货币符号，如 "¥ 12,345.67"
+  error?: string
+}
+
+const DIGIT_MAP: Record<string, number> = {
+  零: 0,
+  〇: 0,
+  壹: 1,
+  一: 1,
+  贰: 2,
+  两: 2,
+  二: 2,
+  叁: 3,
+  三: 3,
+  肆: 4,
+  四: 4,
+  伍: 5,
+  五: 5,
+  陆: 6,
+  六: 6,
+  柒: 7,
+  七: 7,
+  捌: 8,
+  八: 8,
+  玖: 9,
+  九: 9,
+}
+
+/**
+ * 解析一万以内的中文数字段（如“壹仟贰佰叁拾肆” -> 1234n）
+ */
+function parseSmallSection(sectionStr: string): bigint {
+  let sectionVal = 0n
+  let currentDigit: bigint | null = null
+
+  for (let i = 0; i < sectionStr.length; i++) {
+    const ch = sectionStr[i]
+
+    if (ch in DIGIT_MAP) {
+      currentDigit = BigInt(DIGIT_MAP[ch])
+    } else if (ch === '仟' || ch === '千') {
+      const d = currentDigit ?? 1n
+      sectionVal += d * 1000n
+      currentDigit = null
+    } else if (ch === '佰' || ch === '百') {
+      const d = currentDigit ?? 1n
+      sectionVal += d * 100n
+      currentDigit = null
+    } else if (ch === '拾' || ch === '十') {
+      const d = currentDigit ?? 1n
+      sectionVal += d * 10n
+      currentDigit = null
+    }
+  }
+
+  if (currentDigit !== null) {
+    sectionVal += currentDigit
+  }
+
+  return sectionVal
+}
+
+/**
+ * 解析任意万级/亿级中文大写整数字符串
+ */
+function parseChineseInteger(chineseStr: string): bigint {
+  if (!chineseStr || chineseStr === '零') return 0n
+
+  let remaining = chineseStr
+
+  // 先处理“亿”或“億”
+  let total = 0n
+  const yiParts = remaining.split(/[亿億]/)
+  if (yiParts.length > 1) {
+    const high = parseChineseInteger(yiParts[0])
+    total += high * 100000000n
+    remaining = yiParts.slice(1).join('')
+  }
+
+  // 再处理“万”或“萬”
+  const wanParts = remaining.split(/[万萬]/)
+  if (wanParts.length > 1) {
+    const wan = parseSmallSection(wanParts[0])
+    total += wan * 10000n
+    remaining = wanParts.slice(1).join('')
+  }
+
+  // 剩余千/百/十/个位
+  total += parseSmallSection(remaining)
+  return total
+}
+
+/**
+ * 将中文大写金额逆向转换为阿拉伯数字
+ */
+export function parseRmbUppercase(input: string): RmbParseResult {
+  if (!input || typeof input !== 'string') {
+    return { success: false, value: '', formatted: '', error: '输入内容不能为空' }
+  }
+
+  let text = input.trim().replace(/^人民币[:：\s]*/, '')
+  if (!text) {
+    return { success: false, value: '', formatted: '', error: '输入内容不能为空' }
+  }
+
+  const isNegative = text.startsWith('负')
+  if (isNegative) {
+    text = text.slice(1).trim()
+  }
+
+  // 去除末尾的“整”或“正”
+  text = text.replace(/[整正]$/, '').trim()
+
+  if (text === '零元' || text === '零' || text === '') {
+    return {
+      success: true,
+      value: '0.00',
+      formatted: '¥ 0.00',
+    }
+  }
+
+  // 拆分元角分
+  let intPartStr = ''
+  let decimalPartStr = ''
+
+  const yuanIndex = text.search(/[元圆]/)
+  if (yuanIndex !== -1) {
+    intPartStr = text.slice(0, yuanIndex)
+    decimalPartStr = text.slice(yuanIndex + 1)
+  } else {
+    // 检查是否纯角分（例如：伍角、捌分）
+    const hasJiao = text.includes('角')
+    const hasFen = text.includes('分')
+    if (hasJiao || hasFen) {
+      intPartStr = ''
+      decimalPartStr = text
+    } else {
+      // 默认全为整数
+      intPartStr = text
+      decimalPartStr = ''
+    }
+  }
+
+  let integerVal = 0n
+  if (intPartStr) {
+    try {
+      integerVal = parseChineseInteger(intPartStr)
+    } catch {
+      return { success: false, value: '', formatted: '', error: '无法解析大写金额的整数部分' }
+    }
+  }
+
+  // 解析角与分
+  let jiao = 0
+  let fen = 0
+
+  if (decimalPartStr) {
+    const jiaoMatch = decimalPartStr.match(/([零〇壹一贰两二叁三肆四伍五陆六柒七捌八玖九])角/)
+    if (jiaoMatch) {
+      jiao = DIGIT_MAP[jiaoMatch[1]] ?? 0
+    }
+    const fenMatch = decimalPartStr.match(/([零〇壹一贰两二叁三肆四伍五陆六柒七捌八玖九])分/)
+    if (fenMatch) {
+      fen = DIGIT_MAP[fenMatch[1]] ?? 0
+    }
+  }
+
+  const sign = isNegative ? '-' : ''
+  const intStr = integerVal.toString()
+  const centsStr = `${jiao}${fen}`
+  const value = `${sign}${intStr}.${centsStr}`
+
+  // 格式化千分位
+  const formattedInt = intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const formatted = `${sign ? '- ' : ''}¥ ${formattedInt}.${centsStr}`
+
+  return {
+    success: true,
+    value,
+    formatted,
   }
 }

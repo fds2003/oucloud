@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
+import { Button } from '../../components/common/Button'
 import { CopyButton } from '../../components/common/CopyButton'
 import {
   hexToRgb,
@@ -9,10 +11,15 @@ import {
   formatRgb,
   formatHsl,
   isValidHex,
+  getContrastRatio,
+  getColorHarmonies,
+  parseHexParam,
   RGB,
   HSL,
 } from '../../lib/color/conversion'
-
+import { Pipette, CheckCircle, Sparkles, ArrowRight, Camera } from 'lucide-react'
+import { generateShareCardBlob, formatShareCardFilename } from '../../lib/image/shareCard'
+import { downloadBlob } from '../../lib/browser'
 const PRESET_COLORS = [
   '#0ea5e9',
   '#3b82f6',
@@ -36,7 +43,6 @@ export const ColorPicker: React.FC = () => {
   const [hex, setHex] = useState('#0ea5e9')
   const [rgb, setRgb] = useState<RGB>({ r: 14, g: 165, b: 233 })
   const [hsl, setHsl] = useState<HSL>({ h: 199, s: 89, l: 48 })
-
   const updateFromHex = (newHex: string) => {
     setHex(newHex)
     if (isValidHex(newHex)) {
@@ -62,6 +68,64 @@ export const ColorPicker: React.FC = () => {
     setHex(rgbToHex(newRgb))
   }
 
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const paramHex = parseHexParam(searchParams.get('hex'))
+    if (paramHex) {
+      updateFromHex(paramHex)
+    }
+  }, [searchParams])
+
+  const [isEyeDropperSupported, setIsEyeDropperSupported] = useState(false)
+
+  useEffect(() => {
+    setIsEyeDropperSupported('EyeDropper' in window)
+  }, [])
+  const handleEyeDropper = async () => {
+    try {
+      const win = window as unknown as {
+        EyeDropper?: new () => { open: () => Promise<{ sRGBHex: string }> }
+      }
+      if (win.EyeDropper) {
+        const eyeDropper = new win.EyeDropper()
+        const result = await eyeDropper.open()
+        if (result && typeof result.sRGBHex === 'string') {
+          updateFromHex(result.sRGBHex)
+        }
+      }
+    } catch {
+      // 用户取消吸色或平台不支持，安全忽略
+    }
+  }
+
+  // WCAG 对比度计算
+  const contrastData = useMemo(() => {
+    const blackRgb: RGB = { r: 0, g: 0, b: 0 }
+    const whiteRgb: RGB = { r: 255, g: 255, b: 255 }
+    const ratioBlack = getContrastRatio(rgb, blackRgb)
+    const ratioWhite = getContrastRatio(rgb, whiteRgb)
+
+    const bestText = ratioBlack >= ratioWhite ? 'black' : 'white'
+    const bestRatio = Math.max(ratioBlack, ratioWhite)
+
+    return {
+      ratioBlack: Number(ratioBlack.toFixed(2)),
+      ratioWhite: Number(ratioWhite.toFixed(2)),
+      bestText,
+      bestRatio: Number(bestRatio.toFixed(2)),
+      isNormalAa: bestRatio >= 4.5,
+      isLargeAa: bestRatio >= 3.0,
+      isAaa: bestRatio >= 7.0,
+    }
+  }, [rgb])
+
+  // 配色方案推荐
+  const harmonies = useMemo(() => {
+    return getColorHarmonies(hsl)
+  }, [hsl])
+
+
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -83,6 +147,17 @@ export const ColorPicker: React.FC = () => {
               <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-slate-800 shadow pointer-events-none">
                 点击此处直接拾取颜色
               </span>
+              {isEyeDropperSupported && (
+                <button
+                  type="button"
+                  onClick={handleEyeDropper}
+                  className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-md backdrop-blur transition-all"
+                  title="从屏幕任意位置直接吸取颜色"
+                >
+                  <Pipette className="w-3.5 h-3.5 text-sky-400" />
+                  屏幕吸色
+                </button>
+              )}
             </div>
 
             {/* 常用预设色卡 */}
@@ -118,6 +193,7 @@ export const ColorPicker: React.FC = () => {
                 value={hex}
                 onChange={(e) => updateFromHex(e.target.value)}
                 placeholder="#0ea5e9"
+                aria-label="HEX 十六进制色值"
                 className="w-full bg-white border border-slate-300 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
@@ -133,6 +209,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">R (红)</span>
                   <input
                     type="number"
+                    aria-label="红色通道 R 数值 (0-255)"
                     min="0"
                     max="255"
                     value={rgb.r}
@@ -144,6 +221,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">G (绿)</span>
                   <input
                     type="number"
+                    aria-label="绿色通道 G 数值 (0-255)"
                     min="0"
                     max="255"
                     value={rgb.g}
@@ -155,6 +233,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">B (蓝)</span>
                   <input
                     type="number"
+                    aria-label="蓝色通道 B 数值 (0-255)"
                     min="0"
                     max="255"
                     value={rgb.b}
@@ -176,6 +255,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">H (色相 °)</span>
                   <input
                     type="number"
+                    aria-label="色相 H 数值 (0-360)"
                     min="0"
                     max="360"
                     value={hsl.h}
@@ -187,6 +267,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">S (饱和度 %)</span>
                   <input
                     type="number"
+                    aria-label="饱和度 S 数值 (0-100)"
                     min="0"
                     max="100"
                     value={hsl.s}
@@ -198,6 +279,7 @@ export const ColorPicker: React.FC = () => {
                   <span className="text-[10px] text-slate-400">L (亮度 %)</span>
                   <input
                     type="number"
+                    aria-label="亮度 L 数值 (0-100)"
                     min="0"
                     max="100"
                     value={hsl.l}
@@ -207,9 +289,198 @@ export const ColorPicker: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* 跨工具协同跳转 */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-2">
+              <Link
+                to={`/tools/css/gradient-generator?from=${hex.replace('#', '')}`}
+                className="flex-1 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 border border-slate-200 hover:border-primary-300 text-xs font-semibold text-slate-700 hover:text-primary-900 transition-all group"
+              >
+                <span>以此色调配 CSS 渐变</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <Link
+                to={`/tools/css/box-shadow-generator?color=${hex.replace('#', '')}`}
+                className="flex-1 flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-primary-50/50 border border-slate-200 hover:border-primary-300 text-xs font-semibold text-slate-700 hover:text-primary-900 transition-all group"
+              >
+                <span>以此色生成软阴影</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            {/* 导出设计参数卡片 */}
+            <div className="pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const blob = await generateShareCardBlob({
+                    title: '色彩设计参数卡',
+                    subtitle: `HEX: ${hex} · RGB: ${formatRgb(rgb)} · HSL: ${formatHsl(hsl)}`,
+                    category: '在线颜色拾取器',
+                    primaryColor: hex,
+                    secondaryColor: harmonies.complementary,
+                    codeSnippet: `--brand-primary: ${hex};\n--brand-complementary: ${harmonies.complementary};`,
+                  })
+                  downloadBlob(blob, formatShareCardFilename('color-picker'))
+                }}
+                className="w-full gap-2 text-xs border-slate-300"
+              >
+                <Camera className="w-3.5 h-3.5 text-primary-600" />
+                导出色彩设计参数卡 (PNG)
+              </Button>
+            </div>
+            </div>
           </div>
         </div>
       </Card>
+
+      {/* WCAG 2.1 文本对比度与配色方案增强卡片 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* WCAG 对比度与可读性卡片 */}
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <CheckCircle className="w-4 h-4 text-primary-600" />
+              WCAG 2.1 文本对比度与可读性
+            </h3>
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                contrastData.isNormalAa
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}
+            >
+              {contrastData.isAaa ? 'AAA 极致可读' : contrastData.isNormalAa ? 'AA 标准合规' : '对比度偏低'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <span className="text-xs text-slate-500 font-medium">搭配纯黑文字 (#000000)</span>
+              <div className="mt-2 flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-slate-900">
+                  {contrastData.ratioBlack} : 1
+                </span>
+                <span className="text-xs font-semibold text-slate-600">
+                  {contrastData.ratioBlack >= 4.5 ? '通过 AA' : contrastData.ratioBlack >= 3 ? '仅大字' : '未通过'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between">
+              <span className="text-xs text-slate-500 font-medium">搭配纯白文字 (#FFFFFF)</span>
+              <div className="mt-2 flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-slate-900">
+                  {contrastData.ratioWhite} : 1
+                </span>
+                <span className="text-xs font-semibold text-slate-600">
+                  {contrastData.ratioWhite >= 4.5 ? '通过 AA' : contrastData.ratioWhite >= 3 ? '仅大字' : '未通过'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 实时效果呈现 */}
+          <div
+            className="p-4 rounded-xl border border-slate-200 transition-colors flex items-center justify-between"
+            style={{ backgroundColor: isValidHex(hex) ? hex : '#ffffff' }}
+          >
+            <div
+              className="text-sm font-semibold transition-colors"
+              style={{ color: contrastData.bestText === 'black' ? '#000000' : '#ffffff' }}
+            >
+              可读性预览：推荐搭配{contrastData.bestText === 'black' ? '深色/黑色' : '浅色/白色'}文字
+            </div>
+            <span
+              className="text-xs px-2 py-1 rounded shadow-sm font-medium"
+              style={{
+                backgroundColor: contrastData.bestText === 'black' ? '#000000' : '#ffffff',
+                color: contrastData.bestText === 'black' ? '#ffffff' : '#000000',
+              }}
+            >
+              示例按钮
+            </span>
+          </div>
+        </Card>
+
+        {/* 智能配色方案推荐卡片 */}
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              智能配色推荐 (点击切换)
+            </h3>
+            <span className="text-xs text-slate-400">基于色彩空间自动计算</span>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <span className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                互补色 (Complementary)
+              </span>
+              <button
+                type="button"
+                onClick={() => updateFromHex(harmonies.complementary)}
+                className="flex items-center gap-2.5 p-2 rounded-lg border border-slate-200 hover:border-primary-400 bg-white shadow-sm transition-all w-full text-left group"
+              >
+                <div
+                  className="w-6 h-6 rounded-md shrink-0 border border-slate-200 shadow-inner group-hover:scale-105 transition-transform"
+                  style={{ backgroundColor: harmonies.complementary }}
+                />
+                <span className="text-xs font-mono font-medium text-slate-800">
+                  {harmonies.complementary}
+                </span>
+                <span className="text-xs text-slate-400 group-hover:text-primary-600 ml-auto">
+                  应用此色 →
+                </span>
+              </button>
+            </div>
+
+            <div>
+              <span className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                类似色 (Analogous)
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {harmonies.analogous.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => updateFromHex(c)}
+                    className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-primary-400 bg-white shadow-sm transition-all text-left group"
+                  >
+                    <div
+                      className="w-5 h-5 rounded-md shrink-0 border border-slate-200 shadow-inner group-hover:scale-105 transition-transform"
+                      style={{ backgroundColor: c }}
+                    />
+                    <span className="text-xs font-mono font-medium text-slate-800 truncate">{c}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <span className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                三角色 (Triadic)
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {harmonies.triadic.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => updateFromHex(c)}
+                    className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-primary-400 bg-white shadow-sm transition-all text-left group"
+                  >
+                    <div
+                      className="w-5 h-5 rounded-md shrink-0 border border-slate-200 shadow-inner group-hover:scale-105 transition-transform"
+                      style={{ backgroundColor: c }}
+                    />
+                    <span className="text-xs font-mono font-medium text-slate-800 truncate">{c}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

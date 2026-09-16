@@ -3,12 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="mask-icon" href="/favicon.svg" color="#0ea5e9" />
+    <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0ea5e9" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OUCloud - 纯前端在线工具平台</title>
     <meta name="description" content="OUCloud 是一个低成本、纯前端、高效率的在线工具平台，提供颜色选择、大写金额转换、Favicon生成及CSS渐变设计等实用工具。" />
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('oucloud_theme') || 'system';
+          var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-primary-500 selection:text-white">
+  <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-primary-500 selection:text-white transition-colors duration-150">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

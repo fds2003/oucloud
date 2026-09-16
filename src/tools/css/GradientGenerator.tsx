@@ -1,15 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Card } from '../../components/common/Card'
 import { Button } from '../../components/common/Button'
 import { CopyButton } from '../../components/common/CopyButton'
 import {
   GradientConfig,
   formatCssGradient,
+  formatTailwindGradient,
   formatGradientBorderClip,
   formatGradientBorderImage,
   PRESET_GRADIENTS,
 } from '../../lib/css/gradient'
-import { Plus, Trash2, RotateCw } from 'lucide-react'
+import { parseHexParam } from '../../lib/color/conversion'
+import { generateShareCardBlob, formatShareCardFilename } from '../../lib/image/shareCard'
+import { downloadBlob } from '../../lib/browser'
+import { Plus, Trash2, RotateCw, Camera } from 'lucide-react'
 
 type OutputMode = 'background' | 'border'
 
@@ -26,8 +31,28 @@ export const GradientGenerator: React.FC = () => {
   const [mode, setMode] = useState<OutputMode>('background')
   const [borderWidth, setBorderWidth] = useState(4)
   const [borderRadius, setBorderRadius] = useState(12)
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const from = parseHexParam(searchParams.get('from'))
+    const to = parseHexParam(searchParams.get('to'))
+    if (from || to) {
+      setConfig((prev) => {
+        const newStops = [...prev.stops]
+        if (from && newStops[0]) {
+          newStops[0] = { ...newStops[0], color: from }
+        }
+        if (to && newStops[newStops.length - 1]) {
+          newStops[newStops.length - 1] = { ...newStops[newStops.length - 1], color: to }
+        }
+        return { ...prev, stops: newStops }
+      })
+    }
+  }, [searchParams])
+
 
   const gradientValue = formatCssGradient(config)
+  const tailwindString = formatTailwindGradient(config)
   const cssString = `background: ${gradientValue};`
   const borderClipCss = formatGradientBorderClip(config, {
     width: borderWidth,
@@ -297,14 +322,47 @@ export const GradientGenerator: React.FC = () => {
 
             {/* CSS 输出与一键复制 */}
             {mode === 'background' ? (
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase text-slate-500">CSS 样式代码</label>
-                  <CopyButton textToCopy={cssString} label="复制 CSS" copiedLabel="已复制 CSS" />
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold uppercase text-slate-500">原生 CSS 样式代码</label>
+                    <CopyButton textToCopy={cssString} label="复制 CSS" copiedLabel="已复制 CSS" />
+                  </div>
+                  <pre className="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-xs font-mono overflow-x-auto select-all">
+                    {cssString}
+                  </pre>
                 </div>
-                <pre className="bg-slate-900 text-emerald-400 p-3.5 rounded-xl text-xs font-mono overflow-x-auto select-all">
-                  {cssString}
-                </pre>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold uppercase text-slate-500">Tailwind CSS 实用类</label>
+                    <CopyButton textToCopy={tailwindString} label="复制 Tailwind" copiedLabel="已复制 Tailwind" />
+                  </div>
+                  <pre className="bg-slate-900 text-cyan-400 p-3.5 rounded-xl text-xs font-mono overflow-x-auto select-all">
+                    {tailwindString}
+                  </pre>
+                <div className="pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const blob = await generateShareCardBlob({
+                        title: 'CSS 渐变设计卡',
+                        subtitle: `${config.angle}° 角度 · ${config.stops.length} 色标渐变方案`,
+                        category: 'CSS 渐变生成器',
+                        primaryColor: config.stops[0]?.color || '#0ea5e9',
+                        secondaryColor: config.stops[config.stops.length - 1]?.color || '#6366f1',
+                        codeSnippet: cssString,
+                      })
+                      downloadBlob(blob, formatShareCardFilename('gradient-generator'))
+                    }}
+                    className="w-full gap-2 text-xs border-slate-300"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-primary-600" />
+                    导出高颜值渐变参数分享卡 (PNG)
+                  </Button>
+                </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">

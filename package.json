@@ -19,6 +19,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "tools:validate": "tsx scripts/validate-tools.ts",
     "seo:validate": "tsx scripts/validate-seo.ts",
+    "seo:push": "tsx scripts/push-baidu.ts",
     "sitemap": "tsx scripts/generate-sitemap.ts",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm tools:validate",
     "ci": "pnpm run check && pnpm run build && pnpm e2e"

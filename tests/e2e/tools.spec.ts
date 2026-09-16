@@ -64,8 +64,16 @@ test.describe('OUCloud 真实生产环境端到端 (E2E) 核心质量守门', ()
     await expect(resultDisplay).toBeVisible();
 
     // 测试预设快捷按钮
-    await page.getByRole('button', { name: '伍万元整' }).click();
+    await page.getByRole('button', { name: '伍万元整' }).first().click();
     await expect(page.locator('span.select-all')).toHaveText('伍万元整');
+
+    // 测试切换至逆向核对模式
+    await page.getByRole('button', { name: /大写转数字/ }).click();
+    const chineseInput = page.locator('#chinese-input');
+    await expect(chineseInput).toBeVisible();
+    await chineseInput.fill('壹佰贰拾叁元肆角伍分');
+    await expect(page.getByText('¥ 123.45')).toBeVisible();
+    await expect(page.getByText('(数值: 123.45)')).toBeVisible();
   });
 
   test('4. Favicon 网站图标生成器: 本地文件上传与真实 ZIP 下载拦截', async ({ page }) => {
@@ -103,14 +111,15 @@ test.describe('OUCloud 真实生产环境端到端 (E2E) 核心质量守门', ()
     // 点击精选预设“落日余晖 (Sunset)”
     await page.getByText('落日余晖 (Sunset)').click();
 
-    // 检查 CSS 输出框包含预设色彩值
-    const cssPre = page.locator('pre');
-    await expect(cssPre).toContainText('linear-gradient');
-    await expect(cssPre).toContainText('#ff7e5f');
+    // 检查 CSS 输出框包含预设色彩值，同时输出 Tailwind 实用类
+    const preElements = page.locator('pre');
+    await expect(preElements.first()).toContainText('linear-gradient');
+    await expect(preElements.first()).toContainText('#ff7e5f');
+    await expect(preElements.nth(1)).toContainText('bg-gradient');
 
     // 切换为径向渐变
     await page.getByRole('button', { name: '径向 (Radial)' }).click();
-    await expect(cssPre).toContainText('radial-gradient');
+    await expect(preElements.first()).toContainText('radial-gradient');
 
     // 切换到“渐变边框”模式：应同时给出支持圆角与 border-image 两种写法
     await page.getByRole('button', { name: '渐变边框' }).click();

@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Search,
   Sparkles,
@@ -14,7 +14,9 @@ import { tools } from '../../data/tools'
 import { categories } from '../../data/categories'
 import { buildToolPath } from '../../lib/tools'
 import { SeoHead } from '../../components/seo/SeoHead'
+import { JsonLd } from '../../components/seo/JsonLd'
 import { HOME_META } from '../../data/seo'
+import { buildAbsoluteUrl } from '../../lib/tools'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-5 h-5" />,
@@ -25,6 +27,18 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 export const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
+
+  // 深链搜索：SearchAction 声明的 /?q=xxx 入口。
+  // 首帧不读 URL（SSR 与客户端渲染同一空值，避免 hydration mismatch），
+  // 挂载后同步 q 参数到输入框，实现「Google 站点搜索框 → 直接出结果」闭环。
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q) {
+      setSearchQuery(q)
+    }
+  }, [searchParams])
 
   // 客户端实时智能搜索（按匹配度排序）
   const filteredTools = useMemo(() => {
@@ -53,6 +67,35 @@ export const HomePage: React.FC = () => {
   return (
     <div>
       <SeoHead {...HOME_META} />
+
+      {/* 全站站点级 Schema：WebSite + Organization，仅在首页输出一次 */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'OUCloud',
+          url: buildAbsoluteUrl('/'),
+          description: HOME_META.description,
+          inLanguage: 'zh-CN',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: buildAbsoluteUrl('/?q={search_term_string}'),
+            },
+            'query-input': 'required name=search_term_string',
+          },
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'OUCloud',
+          url: buildAbsoluteUrl('/'),
+          logo: buildAbsoluteUrl('/pwa-icon-512.png'),
+        }}
+      />
 
       {/* Hero 区域 */}
       <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 py-16 sm:py-24">
@@ -120,7 +163,7 @@ export const HomePage: React.FC = () => {
               <p className="text-sm text-slate-500">未找到匹配的工具，换个关键词试试？</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {(searchQuery ? filteredTools : featuredTools).map((tool: ToolMeta) => (
                 <Link
                   key={tool.id}

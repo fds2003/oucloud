@@ -1,0 +1,36 @@
+{
+  "name": "OUCloud - 纯前端在线工具平台",
+  "short_name": "OUCloud",
+  "description": "极简高效的纯前端在线工具平台，提供颜色拾取、大写金额转换、Favicon生成、PNG转ICO及CSS渐变设计等实用工具，纯浏览器本地运算，保护隐私零泄露。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["utilities", "developer-tools", "productivity"]
+}
