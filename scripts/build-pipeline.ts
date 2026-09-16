@@ -43,13 +43,16 @@ runScript('npx vite build', 'Vite 生产构建');
 // 3. Sitemap 生成
 runScript('npx tsx scripts/generate-sitemap.ts', '生成 Sitemap.xml');
 
-// 4. SSG 预渲染
+// 4. LLM 站点说明生成
+runScript('npx tsx scripts/generate-llms.ts', '生成 llms.txt / llms-full.txt');
+
+// 5. SSG 预渲染
 runScript('npx tsx scripts/prerender.tsx', 'SSG 静态页面预渲染');
 
-// 5. SEO 校验
+// 6. SEO 校验
 runScript('npx tsx scripts/validate-seo.ts', 'SEO 产物校验');
 
-// 6. 工具元数据校验
+// 7. 工具元数据校验
 runScript('npx tsx scripts/validate-tools.ts', '工具元数据校验');
 
 console.log('\n🎉 构建管道完成！所有步骤已成功执行。');

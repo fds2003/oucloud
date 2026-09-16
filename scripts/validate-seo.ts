@@ -9,7 +9,9 @@
 import fs from 'fs';
 import path from 'path';
 import { resolvePageMeta } from '../src/data/seo';
-import { buildAbsoluteUrl } from '../src/lib/tools';
+import { tools } from '../src/data/tools';
+import { categories } from '../src/data/categories';
+import { buildAbsoluteUrl, buildToolPath, buildCategoryPath } from '../src/lib/tools';
 
 console.log('🔍 开始执行 SEO 静态产物严格校验 (validate-seo)...');
 
@@ -169,6 +171,31 @@ for (const filePath of htmlFiles) {
   }
 
   verifiedCount++;
+}
+
+// 5. llms.txt：给 AI 的站点说明必须由数据生成并保持完整
+//    校验方向与前几项相反——这里不看标签，而是防止「静态文件长期不被更新」：
+//    一旦有人新增工具却忘了重新生成，AI 拿到的导航图就是残缺的，且无人会察觉。
+const llmsPath = path.join(distDir, 'llms.txt');
+if (!fs.existsSync(llmsPath)) {
+  console.error('❌ dist/llms.txt 不存在：AI 检索产品无法读取站点工具清单，请先执行 generate-llms');
+  hasErrors = true;
+} else {
+  const llmsContent = fs.readFileSync(llmsPath, 'utf-8');
+  const requiredUrls = [
+    buildAbsoluteUrl('/'),
+    ...categories.map((category) => buildAbsoluteUrl(buildCategoryPath(category.slug))),
+    ...tools
+      .filter((tool) => tool.status === 'published')
+      .map((tool) => buildAbsoluteUrl(buildToolPath(tool))),
+  ];
+
+  for (const url of requiredUrls) {
+    if (!llmsContent.includes(url)) {
+      console.error(`❌ llms.txt 缺少必需链接：${url}（工具清单与 llms.txt 已漂移）`);
+      hasErrors = true;
+    }
+  }
 }
 
 if (hasErrors) {

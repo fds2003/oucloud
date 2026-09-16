@@ -5,4 +5,37 @@ Disallow: /admin/
 Disallow: /test/
 Disallow: /preview/
 
+# ---------------------------------------------------------------------------
+# AI 爬虫显式放行
+#
+# 上面 User-agent: * 的规则本已覆盖下列全部爬虫，这里再显式声明一次，
+# 目的不是放行本身，而是「防误伤」：一旦日后针对某个 UA 追加 Disallow，
+# 很容易连带把 GPTBot、ClaudeBot 之类挡在门外而不自知——那时站点不会被
+# 任何 AI 检索产品引用，且症状极难归因。显式列出后，许可意愿可被人工审阅。
+#
+# 若将来决定拒绝某个模型抓取，请在此处直接改为 Disallow，并保持列表更新。
+# ---------------------------------------------------------------------------
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: cohere-ai
+User-agent: YouBot
+User-agent: Diffbot
+Allow: /
+
+Disallow: /admin/
+Disallow: /test/
+Disallow: /preview/
+
 Sitemap: https://oucloud.cn/sitemap.xml
