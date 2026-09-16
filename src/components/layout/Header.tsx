@@ -1,43 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, Menu, X, ArrowRight, Search, Sun, Moon, Monitor } from 'lucide-react'
+import { Sparkles, Menu, X, ArrowRight, Search } from 'lucide-react'
 import { categories } from '../../data/categories'
 import { tools } from '../../data/tools'
 import { buildToolPath } from '../../lib/tools'
 import { CommandPalette } from './CommandPalette'
-import { getStoredTheme, setStoredTheme, applyThemeToDom, Theme } from '../../lib/theme'
 
 export const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
-  const [theme, setTheme] = useState<Theme>('system')
 
   const closeMenu = () => setMobileMenuOpen(false)
-
-  // 初始化并监听主题变化
-  useEffect(() => {
-    const initial = getStoredTheme()
-    setTheme(initial)
-    applyThemeToDom(initial)
-
-    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-      const media = window.matchMedia('(prefers-color-scheme: dark)')
-      const handler = () => {
-        const current = getStoredTheme()
-        if (current === 'system') {
-          applyThemeToDom('system')
-        }
-      }
-      media.addEventListener('change', handler)
-      return () => media.removeEventListener('change', handler)
-    }
-  }, [])
-  const handleCycleTheme = () => {
-    const next: Theme = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system'
-    setTheme(next)
-    setStoredTheme(next)
-    applyThemeToDom(next)
-  }
 
   // 全局快捷键 Cmd+K / Ctrl+K
   useEffect(() => {
@@ -98,22 +71,6 @@ export const Header: React.FC = () => {
           </button>
 
           {/* 主题切换按钮 */}
-          <button
-            type="button"
-            onClick={handleCycleTheme}
-            className="flex items-center justify-center w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors shadow-2xs"
-            title={`当前主题：${theme === 'system' ? '跟随系统' : theme === 'dark' ? '暗色模式' : '浅色模式'} (点击切换)`}
-            aria-label="切换色彩主题"
-          >
-            {theme === 'dark' ? (
-              <Moon className="w-4 h-4 text-sky-400" />
-            ) : theme === 'light' ? (
-              <Sun className="w-4 h-4 text-amber-500" />
-            ) : (
-              <Monitor className="w-4 h-4 text-slate-500" />
-            )}
-          </button>
-
           <Link
             to="/about"
             className="text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 transition-colors hidden sm:inline-block"
