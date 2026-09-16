@@ -55,6 +55,28 @@ function unescapeHtml(value: string): string {
     .replace(/&amp;/g, '&');
 }
 
+/**
+ * 搜索引擎所有权验证文件的白名单。
+ *
+ * 这类文件由各站长平台下发并强制要求「原样托管在站点根目录」，其形态本身就是
+ * 一行哈希文本或极简 HTML——天然没有 h1 / TDK / 预渲染内容，也不应被索引。
+ * 它们不是「可以被 SEO 优化的页面」，因此必须豁免全部 SEO 断言；
+ * 但豁免面要收窄到各家平台固定的命名格式，避免把真正的兜底页面混进来。
+ */
+const VERIFICATION_FILE_PATTERNS: RegExp[] = [
+  /^baidu_verify_codeva-[A-Za-z0-9]+\.html$/, // 百度站长平台
+  /^google[0-9a-f]{16}\.html$/, // Google Search Console
+  /^BingSiteAuth\.html$/, // Bing 站长工具
+  /^yandex_[0-9a-f]+\.html$/, // Yandex.Webmaster
+  /^sogou_verify_[A-Za-z0-9]+\.html$/, // 搜狗站长平台
+];
+
+/** 是否为搜索引擎验证文件（只按根目录下的固定命名格式判定） */
+function isVerificationFile(relPath: string): boolean {
+  if (relPath.includes('/') || relPath.includes('\\')) return false; // 仅根目录
+  return VERIFICATION_FILE_PATTERNS.some((pattern) => pattern.test(relPath));
+}
+
 /** 粗略估算 <div id="root"> 内渲染内容的长度，用于识别空壳首屏 */
 function measureRenderedBody(content: string): number {
   const rootStart = content.indexOf('<div id="root">');
@@ -66,9 +88,18 @@ function measureRenderedBody(content: string): number {
 const htmlFiles = findHtmlFiles(distDir);
 let hasErrors = false;
 let verifiedCount = 0;
+let skippedCount = 0;
 
 for (const filePath of htmlFiles) {
   const relPath = path.relative(distDir, filePath);
+
+  // 0. 搜索引擎验证文件：形态由平台规定，不做 SEO 断言
+  if (isVerificationFile(relPath)) {
+    console.log(`⏭️  [${relPath}] 识别为搜索引擎所有权验证文件，跳过 SEO 断言`);
+    skippedCount++;
+    continue;
+  }
+
   const content = fs.readFileSync(filePath, 'utf-8');
   const route = routeFromRelPath(relPath);
 
@@ -145,6 +176,8 @@ if (hasErrors) {
   process.exit(1);
 } else {
   console.log(
-    `\n✅ SEO 产物校验通过！成功验证 ${verifiedCount} 个 HTML 文件，TDK/Canonical 均与 seo.ts 单源一致，首屏均为真实渲染结果。`
+    `\n✅ SEO 产物校验通过！成功验证 ${verifiedCount} 个 HTML 文件` +
+      (skippedCount > 0 ? `（另有 ${skippedCount} 个搜索引擎验证文件豁免）` : '') +
+      '，TDK/Canonical 均与 seo.ts 单源一致，首屏均为真实渲染结果。'
   );
 }
