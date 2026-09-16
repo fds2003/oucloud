@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /test/
+Disallow: /preview/
+
+Sitemap: https://oucloud.cn/sitemap.xml
