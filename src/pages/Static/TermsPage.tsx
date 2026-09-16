@@ -1,15 +1,12 @@
 import React from 'react';
 import { SeoHead } from '../../components/seo/SeoHead';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
+import { STATIC_PAGE_META } from '../../data/seo';
 
 export const TermsPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <SeoHead
-        title="服务条款与免责声明 - OUCloud"
-        description="OUCloud 在线工具平台的服务协议与使用条款说明。"
-        canonicalPath="/terms"
-      />
+      <SeoHead {...STATIC_PAGE_META['/terms']} />
       <Breadcrumb items={[{ label: '服务条款' }]} />
 
       <article className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">

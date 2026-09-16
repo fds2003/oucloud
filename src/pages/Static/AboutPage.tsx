@@ -1,15 +1,12 @@
 import React from 'react';
 import { SeoHead } from '../../components/seo/SeoHead';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
+import { STATIC_PAGE_META } from '../../data/seo';
 
 export const AboutPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <SeoHead
-        title="关于 OUCloud - 纯前端在线工具平台"
-        description="OUCloud 秉承 Tool First 理念，致力于提供安全、轻量、无需上传的纯前端工具生态。"
-        canonicalPath="/about"
-      />
+      <SeoHead {...STATIC_PAGE_META['/about']} />
       <Breadcrumb items={[{ label: '关于平台' }]} />
 
       <article className="prose prose-slate max-w-none bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">

@@ -57,6 +57,12 @@ export function convertToRmbUppercase(inputVal: string | number): RmbConversionR
   let integerPart = match[2].replace(/^0+/, ''); // 去除前置0
   const decimalPart = match[4] || '';
 
+  // 人民币最小单位为“分”：第三位（厘）非零时必须显式报错，禁止静默丢值；
+  // 仅允许 1.230 这类第三位起全为尾随零的等值写法
+  if (decimalPart.length > 2 && decimalPart.slice(2).split('').some((ch) => ch !== '0')) {
+    return { success: false, result: '', error: '金额最多支持两位小数（精确到分），请检查输入' };
+  }
+
   if (!integerPart && (!decimalPart || decimalPart.replace(/0+$/, '') === '')) {
     return { success: true, result: '零元整' };
   }
@@ -85,7 +91,9 @@ export function convertToRmbUppercase(inputVal: string | number): RmbConversionR
       const secCh = sectionToChinese(sec);
 
       if (secCh) {
-        if (zeroSectionFlag && !intResult.endsWith('零')) {
+        // 跨空段需补“零”，但当前段自身以“零”开头（段内前导零）时不得重复补零，
+        // 否则 1,0000,0001 会被误写成“壹亿零零壹元整”
+        if (zeroSectionFlag && !intResult.endsWith('零') && !secCh.startsWith('零')) {
           intResult += '零';
         }
         intResult += secCh + CN_SECTION_UNITS[secUnitIndex];

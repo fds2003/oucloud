@@ -1,19 +1,21 @@
 import React from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getToolBySlug, getRelatedTools } from '../../lib/tools';
 import { getToolComponent } from '../../tools/registry';
 import { ToolShell } from '../../components/tools/ToolShell';
+import { NotFoundPage } from '../Static/NotFoundPage';
 
 export const ToolPage: React.FC = () => {
   const { category, slug } = useParams<{ category: string; slug: string }>();
 
   if (!category || !slug) {
-    return <Navigate to="/404" replace />;
+    return <NotFoundPage />;
   }
 
   const tool = getToolBySlug(category, slug);
-  if (!tool) {
-    return <Navigate to="/404" replace />;
+  // 直接渲染 404 组件而非 <Navigate>：后者会让不存在的 URL 仍返回 HTTP 200（soft 404）
+  if (!tool || tool.status !== 'published') {
+    return <NotFoundPage />;
   }
 
   const ToolComponent = getToolComponent(tool.component);

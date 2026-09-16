@@ -52,6 +52,19 @@ export const Header: React.FC = () => {
           </a>
         </div>
       </div>
+
+      {/* 移动端分类入口：桌面导航在 <768px 隐藏，此处补齐，否则移动端无法切换工具 */}
+      <nav className="flex gap-2 overflow-x-auto border-t border-slate-100 px-4 py-2 md:hidden">
+        {categories.map((cat) => (
+          <Link
+            key={cat.id}
+            to={`/tools/${cat.slug}`}
+            className="shrink-0 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+          >
+            {cat.name}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 };

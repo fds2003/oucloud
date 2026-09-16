@@ -106,7 +106,8 @@ export const Footer: React.FC = () => {
 
         <div className="mt-12 border-t border-slate-100 pt-6 flex flex-col items-center justify-between gap-2 text-xs text-slate-400 sm:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <span>© {new Date().getFullYear()} OUCloud.cn. 保留所有权利。</span>
+            {/* 年份在跨年边界可能与预渲染值不同，显式抑制比对警告 */}
+            <span suppressHydrationWarning>© {new Date().getFullYear()} OUCloud.cn. 保留所有权利。</span>
             {SITE.icpLicense && (
               <a
                 href="https://beian.miit.gov.cn/"

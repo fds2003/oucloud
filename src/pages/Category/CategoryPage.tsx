@@ -1,21 +1,23 @@
 import React from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getCategoryBySlug, buildToolPath } from '../../lib/tools';
 import { tools } from '../../data/tools';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
 import { SeoHead } from '../../components/seo/SeoHead';
 import { ArrowRight } from 'lucide-react';
+import { NotFoundPage } from '../Static/NotFoundPage';
+import { buildCategoryMeta } from '../../data/seo';
 
 export const CategoryPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
 
   if (!categorySlug) {
-    return <Navigate to="/404" replace />;
+    return <NotFoundPage />;
   }
 
   const category = getCategoryBySlug(categorySlug);
   if (!category) {
-    return <Navigate to="/404" replace />;
+    return <NotFoundPage />;
   }
 
   const categoryTools = tools.filter((t) => t.category === categorySlug && t.status === 'published');
@@ -28,11 +30,7 @@ export const CategoryPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <SeoHead
-        title={`${category.name}大全 - 免费在线${category.name} | OUCloud`}
-        description={category.description}
-        canonicalPath={`/tools/${category.slug}`}
-      />
+      <SeoHead {...buildCategoryMeta(category)} />
 
       <Breadcrumb items={breadcrumbItems} />
 

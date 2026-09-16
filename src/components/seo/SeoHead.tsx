@@ -4,7 +4,8 @@ import { buildAbsoluteUrl } from '../../lib/tools';
 export interface SeoHeadProps {
   title: string;
   description: string;
-  canonicalPath: string;
+  /** 省略时不输出 canonical（404 等不该被索引的页面使用） */
+  canonicalPath?: string;
   ogType?: 'website' | 'article';
 }
 
@@ -14,7 +15,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   canonicalPath,
   ogType = 'website',
 }) => {
-  const canonicalUrl = buildAbsoluteUrl(canonicalPath);
+  const canonicalUrl = canonicalPath ? buildAbsoluteUrl(canonicalPath) : null;
 
   useEffect(() => {
     // 动态更新页面标题
@@ -29,14 +30,16 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
     }
     descMeta.setAttribute('content', description);
 
-    // 动态更新 Canonical Link
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalLink);
+    // 动态更新 Canonical Link（404 页无 canonicalUrl，跳过）
+    if (canonicalUrl) {
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', canonicalUrl);
     }
-    canonicalLink.setAttribute('href', canonicalUrl);
 
     // OpenGraph
     const setOgTag = (property: string, content: string) => {
@@ -51,7 +54,9 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
 
     setOgTag('og:title', title);
     setOgTag('og:description', description);
-    setOgTag('og:url', canonicalUrl);
+    if (canonicalUrl) {
+      setOgTag('og:url', canonicalUrl);
+    }
     setOgTag('og:type', ogType);
   }, [title, description, canonicalUrl, ogType]);
 

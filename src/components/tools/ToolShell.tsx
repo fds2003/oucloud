@@ -1,9 +1,16 @@
 import React from 'react';
 import { ToolMeta } from '../../types/tool';
-import { getCategoryBySlug, buildToolPath, buildAbsoluteUrl } from '../../lib/tools';
+import {
+  getCategoryBySlug,
+  buildToolPath,
+  buildAbsoluteUrl,
+  buildCategoryPath,
+  SITE_URL,
+} from '../../lib/tools';
 import { Breadcrumb } from '../layout/Breadcrumb';
 import { SeoHead } from '../seo/SeoHead';
 import { JsonLd } from '../seo/JsonLd';
+import { buildToolMeta } from '../../data/seo';
 import { RelatedTools } from './RelatedTools';
 import { BookOpen, HelpCircle, ListOrdered, Shield } from 'lucide-react';
 
@@ -57,13 +64,13 @@ export const ToolShell: React.FC<ToolShellProps> = ({
         '@type': 'ListItem',
         position: 1,
         name: '首页',
-        item: 'https://oucloud.cn',
+        item: SITE_URL,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: category ? category.name : tool.category,
-        item: `https://oucloud.cn/tools/${tool.category}`,
+        item: buildAbsoluteUrl(buildCategoryPath(tool.category)),
       },
       {
         '@type': 'ListItem',
@@ -93,11 +100,7 @@ export const ToolShell: React.FC<ToolShellProps> = ({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-      <SeoHead
-        title={tool.seo.title}
-        description={tool.seo.description}
-        canonicalPath={toolUrl}
-      />
+      <SeoHead {...buildToolMeta(tool)} />
       <JsonLd data={webAppSchema} />
       <JsonLd data={breadcrumbSchema} />
       {faqSchema && <JsonLd data={faqSchema} />}

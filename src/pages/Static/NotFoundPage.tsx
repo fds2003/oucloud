@@ -2,14 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
 import { SeoHead } from '../../components/seo/SeoHead';
+import { NOT_FOUND_META } from '../../data/seo';
 
 export const NotFoundPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      {/* 404 页不输出 canonical，避免把 /404 当作规范页面提交给搜索引擎 */}
       <SeoHead
-        title="404 - 页面未找到 | OUCloud"
-        description="抱歉，您访问的页面不存在或已被移除。"
-        canonicalPath="/404"
+        title={NOT_FOUND_META.title}
+        description={NOT_FOUND_META.description}
       />
       <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 text-2xl font-black mb-6">
         404

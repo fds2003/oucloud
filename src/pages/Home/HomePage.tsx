@@ -6,6 +6,7 @@ import { tools } from '../../data/tools';
 import { categories } from '../../data/categories';
 import { buildToolPath } from '../../lib/tools';
 import { SeoHead } from '../../components/seo/SeoHead';
+import { HOME_META } from '../../data/seo';
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-5 h-5" />,
@@ -19,10 +20,12 @@ export const HomePage: React.FC = () => {
 
   // 客户端实时智能搜索（按匹配度排序）
   const filteredTools = useMemo(() => {
+    // 只暴露已发布工具：草稿不应出现在首页，否则会链向一个不在 sitemap 中的页面
+    const published = tools.filter((t) => t.status === 'published');
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return tools;
+    if (!q) return published;
 
-    return [...tools]
+    return [...published]
       .map((tool) => {
         let score = 0;
         if (tool.name.toLowerCase() === q) score += 100;
@@ -37,15 +40,11 @@ export const HomePage: React.FC = () => {
       .map((item) => item.tool);
   }, [searchQuery]);
 
-  const featuredTools = tools.filter((t) => t.featured);
+  const featuredTools = tools.filter((t) => t.featured && t.status === 'published');
 
   return (
     <div>
-      <SeoHead
-        title="OUCloud - 纯前端在线工具平台 | 极简高效 零后端传输"
-        description="OUCloud 汇聚颜色拾取器、人民币金额大写转换、Favicon 网站图标生成器、CSS 渐变设计等实用轻量工具，纯浏览器本地运算，保护隐私，开箱即用。"
-        canonicalPath="/"
-      />
+      <SeoHead {...HOME_META} />
 
       {/* Hero 区域 */}
       <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 py-16 sm:py-24">
@@ -63,7 +62,7 @@ export const HomePage: React.FC = () => {
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-slate-600 leading-relaxed">
-            无需注册，无广告打扰。所有色彩计算、发票大写转换、图像尺寸裁剪完全在你的浏览器本地进行，为开发者与日常办公提供极致效率。
+            无需注册，无广告打扰。所有色彩计算、金额大写转换、图标生成与渐变设计完全在你的浏览器本地进行，为开发者与日常办公提供极致效率。
           </p>
 
           {/* 实时检索输入框 (Tool Search) */}

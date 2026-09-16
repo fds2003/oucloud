@@ -54,20 +54,76 @@ export function resizeImageToBlob(
   });
 }
 
+/** ICO 容器内封装的帧尺寸（多帧可让不同 DPI 场景取到合适的一帧） */
+const ICO_FRAME_SIZES = [16, 32, 48];
+
+/**
+ * 将多帧 PNG 封装为标准 ICO 容器（PNG-in-ICO，Vista+ 与主流浏览器均支持）。
+ *
+ * 注意：直接把 PNG 数据命名为 .ico 是不合法的，部分浏览器与 CDN 会拒绝解析，
+ * 必须写出真实的 ICONDIR + ICONDIRENTRY 结构。
+ */
+async function pngFramesToIco(frames: { size: number; png: Blob }[]): Promise<Blob> {
+  const buffers = await Promise.all(frames.map((frame) => frame.png.arrayBuffer()));
+
+  const headerSize = 6 + frames.length * 16;
+  const totalSize = buffers.reduce((sum, buf) => sum + buf.byteLength, headerSize);
+
+  const ico = new Uint8Array(totalSize);
+  const view = new DataView(ico.buffer);
+
+  // ICONDIR
+  view.setUint16(0, 0, true); // reserved
+  view.setUint16(2, 1, true); // type: 1 = icon
+  view.setUint16(4, frames.length, true); // 帧数
+
+  let offset = headerSize;
+  frames.forEach((frame, index) => {
+    const base = 6 + index * 16;
+    const buffer = buffers[index];
+    // 256px 在 ICO 中用 0 表示
+    const dimension = frame.size >= 256 ? 0 : frame.size;
+
+    view.setUint8(base, dimension); // width
+    view.setUint8(base + 1, dimension); // height
+    view.setUint8(base + 2, 0); // palette colors (0 = 真彩色)
+    view.setUint8(base + 3, 0); // reserved
+    view.setUint16(base + 4, 1, true); // color planes
+    view.setUint16(base + 6, 32, true); // bits per pixel
+    view.setUint32(base + 8, buffer.byteLength, true); // 数据长度
+    view.setUint32(base + 12, offset, true); // 数据偏移
+
+    ico.set(new Uint8Array(buffer), offset);
+    offset += buffer.byteLength;
+  });
+
+  return new Blob([ico], { type: 'image/x-icon' });
+}
+
 /**
  * 打包所有尺寸的图标为 ZIP 文件
  */
 export async function createFaviconZip(img: HTMLImageElement): Promise<Blob> {
   const zip = new JSZip();
+  const pngBySize = new Map<number, Blob>();
 
   for (const item of FAVICON_SIZES) {
     const blob = await resizeImageToBlob(img, item.size);
     zip.file(item.filename, blob);
+    pngBySize.set(item.size, blob);
   }
 
-  // 同时将 32x32 另存一份为 favicon.ico 兼容旧浏览器
-  const icoBlob = await resizeImageToBlob(img, 32);
-  zip.file('favicon.ico', icoBlob);
+  // 生成真实 ICO 容器，而非把 PNG 直接改名
+  const icoFrames: { size: number; png: Blob }[] = [];
+  for (const size of ICO_FRAME_SIZES) {
+    let png = pngBySize.get(size);
+    if (!png) {
+      png = await resizeImageToBlob(img, size);
+      pngBySize.set(size, png);
+    }
+    icoFrames.push({ size, png });
+  }
+  zip.file('favicon.ico', await pngFramesToIco(icoFrames));
 
   // 附带一个 HTML 引用示例文件
   const htmlSnippets = generateHtmlSnippets();

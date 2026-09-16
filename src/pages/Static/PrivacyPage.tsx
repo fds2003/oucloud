@@ -1,20 +1,20 @@
 import React from 'react';
 import { SeoHead } from '../../components/seo/SeoHead';
 import { Breadcrumb } from '../../components/layout/Breadcrumb';
+import { STATIC_PAGE_META } from '../../data/seo';
 
 export const PrivacyPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <SeoHead
-        title="隐私保护政策 - OUCloud"
-        description="OUCloud 尊重并保护所有用户的个人隐私，我们不在服务器端收集或保存您的任何输入数据。"
-        canonicalPath="/privacy"
-      />
+      <SeoHead {...STATIC_PAGE_META['/privacy']} />
       <Breadcrumb items={[{ label: '隐私政策' }]} />
 
       <article className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
         <h1 className="text-3xl font-extrabold text-slate-900">隐私保护政策</h1>
-        <p className="text-xs text-slate-400">更新时间：{new Date().toISOString().split('T')[0]}</p>
+        {/* 预渲染时刻与客户端 hydrate 时刻可能跨 UTC 日界，显式抑制该节点的比对警告 */}
+        <p className="text-xs text-slate-400" suppressHydrationWarning>
+          更新时间：{new Date().toISOString().split('T')[0]}
+        </p>
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-800">1. 本地处理原则 (No Upload)</h2>

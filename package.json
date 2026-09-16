@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && tsx scripts/generate-sitemap.ts && tsx scripts/prerender.ts && tsx scripts/validate-seo.ts",
+    "build": "tsc --noEmit && vite build && tsx scripts/generate-sitemap.ts && tsx scripts/prerender.tsx && tsx scripts/validate-seo.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
