@@ -2,6 +2,7 @@ import React from 'react'
 import { SeoHead } from '../../components/seo/SeoHead'
 import { Breadcrumb } from '../../components/layout/Breadcrumb'
 import { STATIC_PAGE_META } from '../../data/seo'
+import { SITE } from '../../data/site'
 
 export const PrivacyPage: React.FC = () => {
   return (
@@ -40,6 +41,19 @@ export const PrivacyPage: React.FC = () => {
             地址、浏览器类型、请求时间等），仅用于防范恶意攻击和保障服务稳定。
           </p>
         </section>
+
+        {SITE.email && (
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-slate-800">4. 联系我们</h2>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              如您对本隐私政策有任何疑问、意见或需行使个人信息相关权利，可通过{' '}
+              <a href={`mailto:${SITE.email}`} className="text-primary-600">
+                {SITE.email}
+              </a>{' '}
+              与我们取得联系。
+            </p>
+          </section>
+        )}
       </article>
     </div>
   )

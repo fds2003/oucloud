@@ -2,7 +2,7 @@ import React from 'react'
 import { SeoHead } from '../../components/seo/SeoHead'
 import { Breadcrumb } from '../../components/layout/Breadcrumb'
 import { STATIC_PAGE_META } from '../../data/seo'
-import { SITE_URL } from '../../data/site'
+import { SITE, SITE_URL } from '../../data/site'
 
 export const AboutPage: React.FC = () => {
   return (
@@ -41,6 +41,19 @@ export const AboutPage: React.FC = () => {
           OUCloud 基于 React 18、TypeScript、Tailwind CSS 和 Vite
           构建，全面采用预渲染静态化技术，保证全网极速的秒开加载速度与高可用性。
         </p>
+
+        {SITE.email && (
+          <>
+            <h2 className="text-xl font-bold text-slate-800">联系我们</h2>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              若您在使用过程中发现结果有误、有功能建议，或希望就商务合作进行沟通，欢迎随时发送邮件至{' '}
+              <a href={`mailto:${SITE.email}`} className="text-primary-600">
+                {SITE.email}
+              </a>
+              ，我们将在工作日内尽快回复。
+            </p>
+          </>
+        )}
       </article>
     </div>
   )

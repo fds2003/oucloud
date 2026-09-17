@@ -17,6 +17,7 @@ import { SeoHead } from '../../components/seo/SeoHead'
 import { JsonLd } from '../../components/seo/JsonLd'
 import { HOME_META } from '../../data/seo'
 import { buildAbsoluteUrl } from '../../lib/tools'
+import { SITE } from '../../data/site'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-5 h-5" />,
@@ -94,6 +95,18 @@ export const HomePage: React.FC = () => {
           name: 'OUCloud',
           url: buildAbsoluteUrl('/'),
           logo: buildAbsoluteUrl('/pwa-icon-512.png'),
+          // 联系方式以机器可读形式声明，供搜索引擎知识图谱与 AI 摘要直接引用
+          ...(SITE.email
+            ? {
+                email: SITE.email,
+                contactPoint: {
+                  '@type': 'ContactPoint',
+                  contactType: 'customer support',
+                  email: SITE.email,
+                  availableLanguage: ['zh-CN'],
+                },
+              }
+            : {}),
         }}
       />
 

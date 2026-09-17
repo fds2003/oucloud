@@ -22,4 +22,10 @@ export const SITE = {
    * 为空时页脚不渲染备案信息。
    */
   icpLicense: '',
+  /**
+   * 对外公示的联系邮箱。会被页脚、关于我们、隐私政策以及站点级 Organization
+   * 结构化数据统一引用，是全站联系方式的唯一真源。
+   * 为空时上述所有位置自动隐藏，约定与 icpLicense 一致。
+   */
+  email: 'support@oucloud.cn',
 }

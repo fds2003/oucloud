@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ShieldCheck, Zap, Lock } from 'lucide-react'
+import { ShieldCheck, Zap, Lock, Mail } from 'lucide-react'
 import { categories } from '../../data/categories'
 import { SITE } from '../../data/site'
 
@@ -104,6 +104,21 @@ export const Footer: React.FC = () => {
             <p className="text-xs text-slate-500 leading-relaxed">
               采用 React + TypeScript + Vite + Tailwind CSS 纯静态生成，托管于全球加速边缘网络。
             </p>
+
+            {SITE.email && (
+              <div className="mt-5">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 mb-3">
+                  联系我们
+                </h4>
+                <a
+                  href={`mailto:${SITE.email}`}
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-600 transition-colors hover:text-primary-600"
+                >
+                  <Mail className="h-3.5 w-3.5 shrink-0" />
+                  {SITE.email}
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
